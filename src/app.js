@@ -1,38 +1,18 @@
 require('dotenv').config();
 
-const Content = require('./content');
 const Client = require('./client');
-
-// Actions
-const ActionCloseFuture = "closefuture";
-const ActionCancel = "cancel"
-
-Client.ElMarco.setMyCommands([{
-    command: "start",
-    description: "Démarrer El Marco Bot pour faire fortune (en sat bien évidemment)",
-}, {
-    command: "home",
-    description: "Retour à la page d'accueil"
-}, {
-    command: "balance",
-    description: "Mettre à jour sa balance LNMarket",
-}, {
-    command: "options",
-    description: "Consulter ses Options ouvertes",
-}, {
-    command: "futures",
-    description: "Consulter ses Futures ouverts",
-}, {
-    command: ActionCloseFuture,
-    description: "Fermer un Future en cours",
-}]);
+const Content = require('./content');
+const Command = require('./command');
 
 Client.ElMarco.onText(/\/start/, async (msg) => {
     renderDefaultMenu(msg.chat.id, Content.renderWelcome());
 });
 Client.ElMarco.onText(/\/home/, async (msg) => {
     renderDefaultMenu(msg.chat.id, "Back to basico on fait quoi ?");
-})
+});
+Client.ElMarco.onText(/\/help/, async (msg) => {
+    renderDefaultMenu(msg.chat.id, Content.renderHelp());
+});
 
 Client.ElMarco.onText(/\/balance/, (msg) => {
     renderDefaultMenu(msg.chat.id, "Je mets ta balance à jour")
@@ -70,6 +50,102 @@ Client.ElMarco.onText(/\/futures/, (msg) => {
         .catch((e) => displayChatError(e, msg.chat.id));
 });
 
+Client.ElMarco.onText(/\/createfuture .*/gi, async (msg, match) => {
+    const paramsRgx = new RegExp(/\/createfuture (l|s)( q=\d+[,|\.]?\d+)? (x=\d+)( p=\d+[,|\.]?\d+)?( m=\d+[,|\.]?\d+)?( sl=\d+[,|\.]?\d+)?( tp=\d+[,|\.]?\d+)?/gi);
+
+    const matchParams = paramsRgx.exec(match[0]);
+     
+    if (!matchParams || matchParams.length < 8) {
+        Client.ElMarco.sendMessage(
+            msg.chat.id,
+            Content.renderCreateFutureParamsError(),
+            {
+                parse_mode: "HTML",
+            },
+        );
+        return;
+    }
+
+    let side, type, margin, leverage, quantity, takeprofit, stoploss, price;
+
+    for(let i = 1; i <= 7; i++) {
+        const p = Command.parseCommandParam(matchParams[i], i);
+
+        switch(p.param.label) {
+            case Command.Params.ParamLong.label:
+                side = "b";
+                break;
+            case Command.Params.ParamShort.label:
+                side = "s";
+                break;
+            case Command.Params.ParamQuantity.label:
+                quantity = p.value;
+                break;
+            case Command.Params.ParamLeverage.label:
+                leverage = p.value;
+                break;
+            case Command.Params.ParamPrice.label:
+                price = p.value;
+                break;
+            case Command.Params.ParamMargin.label:
+                margin = p.value;
+                break;
+            case Command.Params.ParamSL:
+                stoploss = p.value;
+                break;
+            case Command.Params.ParamTP:
+                takeprofit = p.value;
+                break;
+            case Command.Params.ParamUnknown:
+                // TODO message + STOP
+                break;
+        }
+    }
+
+    type = price ? "l" : "m";
+
+    const futureParam = {
+        side, type, margin, leverage, quantity, takeprofit, stoploss, price,
+    };
+
+    const d = `${Command.Actions.ActionCreateFuture};${JSON.stringify(futureParam)}`;
+
+    // TODO create ETCD session
+    // + send it callback
+    // let data;
+    // try {
+    //     data = await Utils.compressData(d);
+    //     console.log(
+    //         (new TextEncoder().encode(data)).length,
+    //         (new TextEncoder().encode(d)).length,
+    //     );
+    // } catch(e) {
+    //     // TODO do smth
+    //     console.error(e);
+    //     return;
+    // }
+
+    // TODO msg
+    Client.ElMarco.sendMessage(
+        msg.chat.id,
+        `Hey ${side} - ${type} - ${margin} ${leverage} - ${quantity} - ${takeprofit} - ${stoploss} - ${price}`,
+        {
+            parse_mode: "HTML",
+            reply_markup: {
+                remove_keyboard: true,
+                inline_keyboard: [[{
+                    text: "Créé le Future",
+                    callback_data: data, // it takes string so we will have problems anyway
+                }, {
+                    text: "Nope, on annule",
+                    callback_data: `${Command.Actions.ActionCreateFuture};${Command.Actions.ActionCancel}`,
+                }]],
+                one_time_keyboard: true,
+            }
+        }
+    );
+});
+
 Client.ElMarco.onText(/\/closefuture/, async (msg) => {
     Client.LNMarketAPI.futuresGetPositions()
         .then(async (res) => {
@@ -103,10 +179,10 @@ Client.ElMarco.onText(/\/closefuture/, async (msg) => {
                             remove_keyboard: true,
                             inline_keyboard: [[{
                                 text: "Go on le clôture",
-                                callback_data: `${ActionCloseFuture};${replyMsg.text}`,
+                                callback_data: `${Command.Actions.ActionCloseFuture};${replyMsg.text}`,
                             }, {
                                 text: "Nope, on annule",
-                                callback_data: `${ActionCloseFuture};${ActionCancel}`,
+                                callback_data: `${Command.Actions.ActionCloseFuture};${Command.Actions.ActionCancel}`,
                             }]],
                             one_time_keyboard: true,
                             force_reply: true,
@@ -131,9 +207,10 @@ Client.ElMarco.on("callback_query", (query) => {
         return;
     }
 
+    // TODO fetch id from ETCD
     switch(data[0]) {
-        case ActionCloseFuture:
-            if (data[1] === ActionCancel) {
+        case Command.Actions.ActionCloseFuture:
+            if (data[1] === Command.Actions.ActionCancel) {
                 Client.ElMarco.answerCallbackQuery(query.id, {
                     text: "No problemo, on ne le clôture pas !",
                 });
@@ -157,6 +234,32 @@ Client.ElMarco.on("callback_query", (query) => {
                     renderDefaultMenu(query.message.chat.id, Content.renderNeedMe())
                 );
             break;
+        case Command.Actions.ActionCreateFuture:
+            if (data[1] === Command.Actions.ActionCancel) {
+                Client.ElMarco.answerCallbackQuery(query.id, {
+                    text: "No problemo, on va pas créer le Future",
+                });
+                Client.ElMarco.deleteMessage(query.message.chat.id, query.message.message_id);
+                renderDefaultMenu(query.message.chat.id, Content.renderNeedMe())
+                break;
+            }
+
+            const params = JSON.parse(data[1]);
+
+            Client.LNMarketAPI.futuresNewPosition(params)
+                .then(async (res) => {
+                    Client.ElMarco.answerCallbackQuery(query.id);
+                    Client.ElMarco.deleteMessage(query.message.chat.id, query.message.message_id);
+                    // TODO
+                    Client.ElMarco.sendMessage(query.message.chat.id, "blablabla");
+                })
+                .catch(
+                    (e) => displayChatError(e, query.message.chat.id)
+                )
+                .finally(() =>
+                    renderDefaultMenu(query.message.chat.id, Content.renderNeedMe())
+                );
+            break;
         default:
             Client.ElMarco.answerCallbackQuery(query.id, {
                 text: "Ye connais pas ça !",
@@ -174,6 +277,7 @@ const renderDefaultMenu = async (chatID, message) => {
     ];
 
     Client.ElMarco.sendMessage(chatID, message, {
+        parse_mode: "HTML",
         reply_markup: {
             keyboard: menu,
             resize_keyboard: true,

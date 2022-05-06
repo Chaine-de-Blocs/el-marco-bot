@@ -1,0 +1,36 @@
+version: "3.9"
+services:
+  app:
+    build: .
+    container_name: elmarco_app
+    restart: always
+    user: "node"
+    working_dir: /home/node/app
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./src:/home/node/app
+      - nodelog:/var/log
+    links:
+      - kv
+      - db
+    command: "npm start"
+
+  kv:
+    image: quay.io/coreos/etcd:v3.2.13
+    container_name: elmarco_kv
+    restart: always
+    volumes:
+      - ./storage/etcd.conf.yml:/opt/bitnami/etcd/conf/etcd.conf.yml
+  
+  db:
+    image: mongo:5.0.8
+    container_name: elmarco_db
+    restart: always
+    ports:
+      - 8777:8081
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: elmaaarrco
+volumes:
+  nodelog: {}
