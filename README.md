@@ -1,6 +1,6 @@
 # El Marrrrrcoooo Botto
 
-- [ ] Créer un future
+- [x] Créer un future
 - [ ] Créer une option
 - [x] Lister les futures ouverts
 - [x] Lister les options ouvertes
