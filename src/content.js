@@ -141,9 +141,66 @@ ${renderCreateFutureHelp()}
 
 Pour t'inspirer voilà quelques commandes pour créer un Future :
 
-<code>/createfuture l q=100.02 x=50 p=35333.41 sl=35300</code>
+<code>/createfuture l q=100 x=50 p=35333 sl=35300</code>
 
-<code>/createfuture s q=100.02 x=50 sl=36000 tp=38000</code>
+<code>/createfuture s q=100 x=50 sl=36000 tp=38000</code>
+    `
+}
+
+/**
+ * @param {Object} params
+ * @param {String} [params.side] 
+ * @param {String} [params.type] 
+ * @param {Number} [params.margin] 
+ * @param {Number} [params.leverage] 
+ * @param {Number} [params.quantity] 
+ * @param {Number} [params.takeprofit] 
+ * @param {Number} [params.stoploss] 
+ * @param {Number} [params.price]
+ * @returns {String}
+ */
+const renderFutureReview = (params) => {
+    // TODO must know the margin by calculation
+    // TODO display market price if Market (ticker)
+    return `
+On va créer ce Future :
+
+Future ${renderSide(params.side)}
+💳 Au prix ${params.price ? params.price+"USD" : "Marché"}
+${params.quantity ? "💰 Quantité de " + params.quantity + "USD" : ""}
+🚀 Levier x${params.leverage}
+${params.margin ? "📏 Marge de " + params.margin + "sat" : ""}
+
+${renderSL(params.stoploss)}
+${renderTP(params.takeprofit)}
+    `;
+}
+
+/**
+ * @param {Object} future
+ * @param {String} [future.pid]
+ * @param {Number} [future.id]
+ * @param {String} [future.type]
+ * @param {String} [future.takeprofit_wi]
+ * @param {Number} [future.takeprofit]
+ * @param {String} [future.stoploss_wi]
+ * @param {Number} [future.stoploss]
+ * @param {String} [future.side]
+ * @param {Number} [future.quantity]
+ * @param {Number} [future.price]
+ * @param {Number} [future.pl]
+ * @param {String} [future.market_wi]
+ * @param {Number} [future.market_filled_ts]
+ * @param {String} [future.margin_wi]
+ * @param {Number} [future.margin]
+ * @param {Number} [future.liquidation]
+ * @param {Number} [future.leverage]
+ * @param {String} [future.creation_ts]
+ * @returns {String}
+ */
+const renderFutureCreated = (future) => {
+    return `
+Le Future ${future.pid} a été créé Gringos ! Tu le verras en cherchant <code>/futures</code>
     `
 }
 
@@ -159,7 +216,7 @@ const renderCloseFuture = (futureID) => {
 /**
  * @returns {String}
  */
-const renderCreateFutureHelp = () => { //&lt;&gt;
+const renderCreateFutureHelp = () => {
     return `/createfuture Créer un Future <code>(l ou s) [q=&lt;USD quantity&gt;] x=&lt;levier&gt; [p=&lt;prix d'entrée&gt;] [m=&lt;marge&gt;] [sl=&lt;Stop Loss&gt;] [tp=&lt;Take Profit&gt;]</code>
 <i>Mets <code>l</code> pour faire un Long (Buy) et <code>s</code> pour faire un Short (Sell)
 
@@ -222,6 +279,17 @@ const renderPL = (pl) => {
 }
 
 /**
+ * @param {String} side 
+ * @returns {String}
+ */
+const renderSide = (side) => {
+    if (side === "b") {
+        return "📈 Buy";
+    }
+    return "📉 Sell";
+}
+
+/**
  * 
  * @param {Error} e 
  * @returns {String}
@@ -242,4 +310,7 @@ module.exports = {
     renderNoFutures,
     renderHr,
     renderCreateFutureParamsError,
+    renderFutureCreated,
+    renderFutureReview,
+    renderCreateFuture,
 };

@@ -12,6 +12,7 @@
     "@ln-markets/api": "1.7.0",
     "dotenv": "16.0.0",
     "etcd3": "1.1.0",
+    "loglevel": "^1.8.0",
     "mongodb": "4.5.0",
     "node-telegram-bot-api": "0.57.0",
     "uuid": "^8.3.2"

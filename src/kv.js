@@ -1,4 +1,5 @@
 const uuid = require("uuid");
+const LogLevel = require("loglevel");
 
 const Client = require("./client");
 
@@ -13,11 +14,16 @@ const store = async (value, id) => {
         id = uuid.v4();
     }
 
-    await Client.Etcd
-        .put(id)
-        .value(Buffer.from(value).toString("base64"))
-
-    return id;
+    try {
+        await Client.Etcd
+            .put(id)
+            .value(Buffer.from(value).toString("base64"))
+            
+        return id;
+    } catch(e) {
+        LogLevel.error(`etcd_error=[e:${e}]`);
+        throw e;
+    }
 }
 
 /**
@@ -25,7 +31,7 @@ const store = async (value, id) => {
  * @param {Promise<String>} key 
  */
 const get = async (key) => {
-    const value = Client.Etcd
+    const value = await Client.Etcd
         .get(key)
         .string();
 

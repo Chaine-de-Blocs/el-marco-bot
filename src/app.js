@@ -1,4 +1,5 @@
 require("dotenv").config();
+const LogLevel = require("loglevel");
 
 const Client = require("./client");
 const Content = require("./content");
@@ -98,7 +99,8 @@ Client.ElMarco.onText(/\/createfuture .*/gi, async (msg, match) => {
                 takeprofit = p.value;
                 break;
             case Command.Params.ParamUnknown:
-                // TODO message + STOP
+            default:
+                LogLevel.warn(`/createfuture=[unknow_param, param:${p.param.label}]`);
                 break;
         }
     }
@@ -109,28 +111,26 @@ Client.ElMarco.onText(/\/createfuture .*/gi, async (msg, match) => {
         side, type, margin, leverage, quantity, takeprofit, stoploss, price,
     };
 
-    const payload = `${Command.Actions.ActionCreateFuture};${JSON.stringify(futureParam)}`;
+    const payload = JSON.stringify(futureParam);
 
     let id = "";
     try {
         id = await KV.store(payload);
     } catch(e) {
-        // TODO sendmessage bot
-        console.log(e);
+        displayChatError("problème de serveur", msg.chat.id)
         return
     }
 
-    // TODO msg
     Client.ElMarco.sendMessage(
         msg.chat.id,
-        `Hey ${side} - ${type} - ${margin} ${leverage} - ${quantity} - ${takeprofit} - ${stoploss} - ${price}`,
+        Content.renderFutureReview(futureParam),
         {
             parse_mode: "HTML",
             reply_markup: {
                 remove_keyboard: true,
                 inline_keyboard: [[{
                     text: "Créé le Future",
-                    callback_data: id,
+                    callback_data: `${Command.Actions.ActionCreateFuture};${id}`,
                 }, {
                     text: "Nope, on annule",
                     callback_data: `${Command.Actions.ActionCreateFuture};${Command.Actions.ActionCancel}`,
@@ -202,7 +202,6 @@ Client.ElMarco.on("callback_query", (query) => {
         return;
     }
 
-    // TODO fetch id from ETCD
     switch(data[0]) {
         case Command.Actions.ActionCloseFuture:
             if (data[1] === Command.Actions.ActionCancel) {
@@ -246,16 +245,16 @@ Client.ElMarco.on("callback_query", (query) => {
 
                     Client.ElMarco.answerCallbackQuery(query.id);
                     Client.ElMarco.deleteMessage(query.message.chat.id, query.message.message_id);
-                    // TODO
-                    Client.ElMarco.sendMessage(query.message.chat.id, "blablabla");
+                    Client.ElMarco.sendMessage(query.message.chat.id, Content.renderFutureCreated(res));
                     Client.LNMarketAPI.futuresNewPosition(params)
                 })
-                .catch((e) => displayChatError(e, query.message.chat.id))
+                .catch((e) => displayChatError(`Error futuresNewPosition ${e}`, query.message.chat.id))
                 .finally(() =>
                     renderDefaultMenu(query.message.chat.id, Content.renderNeedMe())
                 );
             break;
         default:
+            LogLevel.warn(`unknown_cb_action: [${data[0]}]`);
             Client.ElMarco.answerCallbackQuery(query.id, {
                 text: "Ye connais pas ça !",
             });
@@ -282,5 +281,6 @@ const renderDefaultMenu = async (chatID, message) => {
 }
 
 const displayChatError = (e, chatID) => {
+    LogLevel.warn(`error=[e: ${e}]`);
     Client.ElMarco.sendMessage(chatID, Content.renderError(e));
 }

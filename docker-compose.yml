@@ -38,6 +38,7 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=elmaaarrco
+      - ME_CONFIG_MONGODB_URL=mongodb://root:elmaaarrco@elmarco_db:27017
     networks:
       - marcobotnet
 networks:
