@@ -1,8 +1,9 @@
-require('dotenv').config();
+require("dotenv").config();
 
-const Client = require('./client');
-const Content = require('./content');
-const Command = require('./command');
+const Client = require("./client");
+const Content = require("./content");
+const Command = require("./command");
+const KV = require("./kv");
 
 Client.ElMarco.onText(/\/start/, async (msg) => {
     renderDefaultMenu(msg.chat.id, Content.renderWelcome());
@@ -108,22 +109,16 @@ Client.ElMarco.onText(/\/createfuture .*/gi, async (msg, match) => {
         side, type, margin, leverage, quantity, takeprofit, stoploss, price,
     };
 
-    const d = `${Command.Actions.ActionCreateFuture};${JSON.stringify(futureParam)}`;
+    const payload = `${Command.Actions.ActionCreateFuture};${JSON.stringify(futureParam)}`;
 
-    // TODO create ETCD session
-    // + send it callback
-    // let data;
-    // try {
-    //     data = await Utils.compressData(d);
-    //     console.log(
-    //         (new TextEncoder().encode(data)).length,
-    //         (new TextEncoder().encode(d)).length,
-    //     );
-    // } catch(e) {
-    //     // TODO do smth
-    //     console.error(e);
-    //     return;
-    // }
+    let id = "";
+    try {
+        id = await KV.store(payload);
+    } catch(e) {
+        // TODO sendmessage bot
+        console.log(e);
+        return
+    }
 
     // TODO msg
     Client.ElMarco.sendMessage(
@@ -135,7 +130,7 @@ Client.ElMarco.onText(/\/createfuture .*/gi, async (msg, match) => {
                 remove_keyboard: true,
                 inline_keyboard: [[{
                     text: "Créé le Future",
-                    callback_data: data, // it takes string so we will have problems anyway
+                    callback_data: id,
                 }, {
                     text: "Nope, on annule",
                     callback_data: `${Command.Actions.ActionCreateFuture};${Command.Actions.ActionCancel}`,
@@ -244,18 +239,18 @@ Client.ElMarco.on("callback_query", (query) => {
                 break;
             }
 
-            const params = JSON.parse(data[1]);
+            KV.get(data[1])
+                .then(async value => {
+                    const params = JSON.parse(value);
+                    const res = await Client.LNMarketAPI.futuresNewPosition(params);
 
-            Client.LNMarketAPI.futuresNewPosition(params)
-                .then(async (res) => {
                     Client.ElMarco.answerCallbackQuery(query.id);
                     Client.ElMarco.deleteMessage(query.message.chat.id, query.message.message_id);
                     // TODO
                     Client.ElMarco.sendMessage(query.message.chat.id, "blablabla");
+                    Client.LNMarketAPI.futuresNewPosition(params)
                 })
-                .catch(
-                    (e) => displayChatError(e, query.message.chat.id)
-                )
+                .catch((e) => displayChatError(e, query.message.chat.id))
                 .finally(() =>
                     renderDefaultMenu(query.message.chat.id, Content.renderNeedMe())
                 );
