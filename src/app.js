@@ -92,13 +92,13 @@ Client.ElMarco.onText(/\/createfuture .*/gi, async (msg, match) => {
             case Command.Params.ParamMargin.label:
                 margin = p.value;
                 break;
-            case Command.Params.ParamSL:
+            case Command.Params.ParamSL.label:
                 stoploss = p.value;
                 break;
-            case Command.Params.ParamTP:
+            case Command.Params.ParamTP.label:
                 takeprofit = p.value;
                 break;
-            case Command.Params.ParamUnknown:
+            case Command.Params.ParamUnknown.label:
             default:
                 LogLevel.warn(`/createfuture=[unknow_param, param:${p.param.label}]`);
                 break;
@@ -110,6 +110,8 @@ Client.ElMarco.onText(/\/createfuture .*/gi, async (msg, match) => {
     const futureParam = {
         side, type, margin, leverage, quantity, takeprofit, stoploss, price,
     };
+
+    // console.log(futureParam);
 
     const payload = JSON.stringify(futureParam);
 

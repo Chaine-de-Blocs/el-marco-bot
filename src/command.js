@@ -133,7 +133,7 @@ const parseCommandParam = (cmd, index) => {
                 return {
                     param: Params.ParamLong,
                 };
-            case Params.ParamShort:
+            case Params.ParamShort.label:
                 return {
                     param: Params.ParamShort,
                 };
