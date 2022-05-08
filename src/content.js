@@ -12,6 +12,42 @@ C'est El Marco
 /**
  * @returns {String}
  */
+const renderStartAPICreds = () => {
+    return `
+Bienvenido Gringos,
+
+Je suis Marco, ou plus connu sous le nom de El Maaarrrco. Avec moi on fait business et je ne suis là que pour ça. Tu as raison de t'aventurer dans la finance Bitcoin avec <a href="https://lnmarkets.com/">LNMarket</a>, y'a de quoi se retrousser les manches pour ramassers quelques pépites ici.
+
+Pour qu'on bosse ensemble tu vas devoir me filer qualques accès à l'API de LNMarket.
+
+Créé ton client API en allant ici <a href="https://testnet.lnmarkets.com/user/api">https://testnet.lnmarkets.com/user/api</a>.
+
+<b>Pense bien à noter ton <code>passphrase</code> tu en auras besoin pour sécuriser l'accès.</b>
+
+Pour qu'on puisse bien collaborer donne moi les accès suivants :
+✅ Get user
+✅ Deposit
+✅ Get open and running positions
+✅ Get closed positions
+✅ Create positions
+✅ Modify positions
+✅ Close and cancel positions
+✅ Make a new options trade
+✅ Get options trades
+
+Tu peux ne pas tout mettre, certaines de mes compétences ne pourront pas être mises à ton service Gringos.
+
+Et enfin transmets les moi par message sous la forme suivante (mets bien un espace entre chaque info) :
+
+<code>&lt;Api Key&gt; &lt;Api Secret&gt; &lt;Passphrase&gt;</code>
+
+<i>Pour ta sécurité je ne vais que sauvegarder tes accès API et les chiffrer avec ton <code>passphrase</code>. Ton <code>passphrase</code> sera gardé en session. A tout moment tu pourras supprimer ta session et tes accès avec la commande <code>/removesession</code></i>
+    `;
+}
+
+/**
+ * @returns {String}
+ */
 const renderHelp = () => {
     return `
 Si tu veux bosser avec moi on va devoir s'accorder, no problemo je suis un partenaire facile et efficace.
@@ -237,6 +273,19 @@ const renderNeedMe = () => {
 }
 
 /**
+ * @param {Error} err
+ * @returns {String}
+ */
+const renderBadAPICreds = (err) => {
+    return `
+Hum... J'ai eu une erreur en essayant tes accès sur l'API de LNMarket, voilà l'erreur :
+${err}
+
+<b>Pour recommencer fais à nouveau <code>/start</code></b>
+    `
+}
+
+/**
  * 
  * @returns {String}
  */
@@ -313,4 +362,6 @@ module.exports = {
     renderFutureCreated,
     renderFutureReview,
     renderCreateFuture,
+    renderStartAPICreds,
+    renderBadAPICreds,
 };

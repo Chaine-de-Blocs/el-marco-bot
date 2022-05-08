@@ -6,16 +6,18 @@ const MongoClient = require("mongodb").MongoClient;
 /**
  * Init LNMarket client
  */
-const lnKey = process.env.LNM_KEY;
-const lnSecret = process.env.LNM_SECRET;
-const lnPass = process.env.LNM_PASSPHRASE;
+// const lnKey = process.env.LNM_KEY;
+// const lnSecret = process.env.LNM_SECRET;
+// const lnPass = process.env.LNM_PASSPHRASE;
 
-const LNMarketAPI = new LNMarketsRest({
-    network: 'testnet',
-    key: lnKey,
-    secret: lnSecret,
-    passphrase: lnPass,
-});
+const GetLNMarketClient = (lnKey, lnSecret, lnPass) => {
+    return new LNMarketsRest({
+        network: 'testnet',
+        key: lnKey,
+        secret: lnSecret,
+        passphrase: lnPass,
+    });
+}
 
 /**
  * Init TelegramBot client
@@ -41,16 +43,17 @@ Etcd.get("healtcheck")
 /**
  * DB
  */
-const mongoClient = new MongoClient("mongodb://root:elmaaarrco@elmarco_db:27017");
+const Mongo = new MongoClient("mongodb://root:elmaaarrco@elmarco_db:27017");
 
-mongoClient.connect()
+Mongo.connect()
     .catch((e) => {
         console.error("Can't load MongoDB");
         throw e;
     });
 
 module.exports = {
-    LNMarketAPI,
+    GetLNMarketClient,
     ElMarco,
     Etcd,
+    Mongo,
 }

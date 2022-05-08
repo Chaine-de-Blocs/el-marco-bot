@@ -1,3 +1,5 @@
+// remove this after tests
+// i7f6700b1g98f B9toRtCcXTZdDjK2TSxM+3TJwWpEMNR8iPrqVK9YPKU= oKOPtB4XciODbqmGrw61gEq2RYtwE9TtZb+9ePs0Pznt3VMd8eayivEXLu+Gk3D83t4x00zX6E6+7+36iAP08w==
 require("dotenv").config();
 const LogLevel = require("loglevel");
 
@@ -5,9 +7,62 @@ const Client = require("./client");
 const Content = require("./content");
 const Command = require("./command");
 const KV = require("./kv");
+const DB = require("./db");
+
+DB.Init();
+
+const lnKey = process.env.LNM_KEY;
+const lnSecret = process.env.LNM_SECRET;
+const lnPass = process.env.LNM_PASSPHRASE;
 
 Client.ElMarco.onText(/\/start/, async (msg) => {
-    renderDefaultMenu(msg.chat.id, Content.renderWelcome());
+    // ask for api credentials
+    const msgSent = await Client.ElMarco.sendMessage(
+        msg.chat.id,
+        Content.renderStartAPICreds(),
+        {
+            parse_mode: "HTML",
+            reply_markup: {
+                force_reply: true,
+            },
+        }
+    );
+
+    Client.ElMarco.onReplyToMessage(
+        msg.chat.id,
+        msgSent.message_id,
+        (replyMsg) => {
+            const creds = replyMsg.text.split(" ");
+
+            if (creds.length !== 3) {
+                // TODO error
+                return;
+            }
+
+            const clientId = creds[0];
+            const clientSecret = creds[1];
+            const passphrase = creds[2];
+
+            Client
+                .GetLNMarketClient(clientId, clientSecret, passphrase)
+                .getUser()
+                .then(async _ => {
+                    await DB.SaveAPICreds(msg.chat.id, clientId, clientSecret, passphrase);
+
+                    // TODO init a session with passphrase
+                    // init a session
+                })
+                .catch(e => {
+                    Client.ElMarco.sendMessage(
+                        msg.chat.id,
+                        Content.renderBadAPICreds(e),
+                        {
+                            parse_mode: "HTML",
+                        },
+                    );
+                });
+        }
+    );
 });
 Client.ElMarco.onText(/\/home/, async (msg) => {
     renderDefaultMenu(msg.chat.id, "Back to basico on fait quoi ?");
@@ -21,7 +76,7 @@ Client.ElMarco.onText(/\/balance/, (msg) => {
 });
 
 Client.ElMarco.onText(/\/options/, (msg) => {
-    Client.LNMarketAPI.optionsGetPositions()
+    Client.GetLNMarketClient(lnKey, lnSecret, lnPass).optionsGetPositions()
         .then((res) => {
             for(const opt of res) {
                 const contentMsg = Content.renderOption({
@@ -39,7 +94,7 @@ Client.ElMarco.onText(/\/options/, (msg) => {
 });
 
 Client.ElMarco.onText(/\/futures/, (msg) => {
-    Client.LNMarketAPI.futuresGetPositions()
+    Client.GetLNMarketClient(lnKey, lnSecret, lnPass).futuresGetPositions()
         .then((res) => {
             if (res.length === 0) {
                 Client.ElMarco.sendMessage(msg.chat.id, Content.renderNoFutures(), { parse_mode: "HTML" });
@@ -111,8 +166,6 @@ Client.ElMarco.onText(/\/createfuture .*/gi, async (msg, match) => {
         side, type, margin, leverage, quantity, takeprofit, stoploss, price,
     };
 
-    // console.log(futureParam);
-
     const payload = JSON.stringify(futureParam);
 
     let id = "";
@@ -144,7 +197,7 @@ Client.ElMarco.onText(/\/createfuture .*/gi, async (msg, match) => {
 });
 
 Client.ElMarco.onText(/\/closefuture/, async (msg) => {
-    Client.LNMarketAPI.futuresGetPositions()
+    Client.GetLNMarketClient(lnKey, lnSecret, lnPass).futuresGetPositions()
         .then(async (res) => {
             const msgSent = await Client.ElMarco.sendMessage(msg.chat.id, Content.renderClosingFuture(res), {
                 parse_mode: "HTML",
@@ -215,7 +268,7 @@ Client.ElMarco.on("callback_query", (query) => {
                 break;
             }
 
-            Client.LNMarketAPI.futuresClosePosition({ pid: data[1] })
+            Client.GetLNMarketClient(lnKey, lnSecret, lnPass).futuresClosePosition({ pid: data[1] })
                 .then((_) => {
                     Client.ElMarco.answerCallbackQuery(query.id);
                     Client.ElMarco.deleteMessage(query.message.chat.id, query.message.message_id);
@@ -243,12 +296,12 @@ Client.ElMarco.on("callback_query", (query) => {
             KV.get(data[1])
                 .then(async value => {
                     const params = JSON.parse(value);
-                    const res = await Client.LNMarketAPI.futuresNewPosition(params);
+                    const res = await Client.GetLNMarketClient(lnKey, lnSecret, lnPass).futuresNewPosition(params);
 
                     Client.ElMarco.answerCallbackQuery(query.id);
                     Client.ElMarco.deleteMessage(query.message.chat.id, query.message.message_id);
                     Client.ElMarco.sendMessage(query.message.chat.id, Content.renderFutureCreated(res));
-                    Client.LNMarketAPI.futuresNewPosition(params)
+                    Client.GetLNMarketClient(lnKey, lnSecret, lnPass).futuresNewPosition(params)
                 })
                 .catch((e) => displayChatError(`Error futuresNewPosition ${e}`, query.message.chat.id))
                 .finally(() =>
@@ -265,7 +318,7 @@ Client.ElMarco.on("callback_query", (query) => {
 });
 
 const renderDefaultMenu = async (chatID, message) => {
-    const lnmUserInfo = await Client.LNMarketAPI.getUser();
+    const lnmUserInfo = await Client.GetLNMarketClient(lnKey, lnSecret, lnPass).getUser();
 
     const menu = [
         [`🌟 Ta balance est de ${lnmUserInfo.balance} sat`],
