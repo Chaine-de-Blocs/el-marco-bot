@@ -10,7 +10,7 @@ const Init = () => {
         d => {
             const names = d.map(d => d.name);
             if (!names.includes(CollectionCreds)) {
-                getDB().createCollection(CollectionCreds);
+                getDB().creatjeCollection(CollectionCreds);
             }
         }
     )
@@ -41,10 +41,43 @@ const SaveAPICreds = async (chatId, clientId, clientSecret, passphrase) => {
         });
 }
 
+/**
+ * 
+ * @param {String} chatId 
+ * @param {String} passphrase 
+ * @returns {Object}
+ */
+const GetAPICreds = async (chatId, passphrase) => {
+    if (typeof chatId === "undefined") {
+        throw new Error("chatId is undefined");
+    }
+    if (typeof passphrase === "undefined") {
+        throw new Error("passphrase is undefined");
+    }
+
+    const data = await getDB()
+        .collection(CollectionCreds)
+        .findOne({
+            _id: chatId,
+        });
+    
+    const decryptedData = Utils.Decrypt(data.encrypted_creds, passphrase);
+
+    const creds = decryptedData.split(":");
+    if (!creds || creds.length !== 2) {
+        throw new Error("decrypted data is invalid");
+    }
+
+    return {
+        api_client: creds[0],
+        api_secret: creds[1],
+    }
+}
+
 const getDB = () => {
     return Mongo.db("elmarco");
 }
 
 module.exports = {
-    Init, SaveAPICreds,
+    Init, SaveAPICreds, GetAPICreds,
 };

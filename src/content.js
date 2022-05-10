@@ -46,6 +46,18 @@ Et enfin transmets les moi par message sous la forme suivante (mets bien un espa
 }
 
 /**
+ * 
+ * @returns {String}
+ */
+const renderStartSuccess = () => {
+    return `
+On est bons ! Tes accès sont bien valides. Aucune inquiétude j'ai en mémoire tes accès mais je les ai chiffré eheh ! Ton <code>passphrase</code> est la clé de chiffrement que je garde en session uniquement.
+
+On peut commencer les choses sérieuses, tape <code>/help</code> pour voir les services que je te propose.
+    `;
+}
+
+/**
  * @returns {String}
  */
 const renderHelp = () => {
@@ -364,4 +376,5 @@ module.exports = {
     renderCreateFuture,
     renderStartAPICreds,
     renderBadAPICreds,
+    renderStartSuccess,
 };

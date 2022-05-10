@@ -1,13 +1,15 @@
 // remove this after tests
-// i7f6700b1g98f B9toRtCcXTZdDjK2TSxM+3TJwWpEMNR8iPrqVK9YPKU= oKOPtB4XciODbqmGrw61gEq2RYtwE9TtZb+9ePs0Pznt3VMd8eayivEXLu+Gk3D83t4x00zX6E6+7+36iAP08w==
+// B9toRtCcXTZdDjK2TSxM+3TJwWpEMNR8iPrqVK9YPKU= oKOPtB4XciODbqmGrw61gEq2RYtwE9TtZb+9ePs0Pznt3VMd8eayivEXLu+Gk3D83t4x00zX6E6+7+36iAP08w== i7f6700b1g98f
 require("dotenv").config();
 const LogLevel = require("loglevel");
+const useMdw = require("node-telegram-bot-api-middleware").use;
 
 const Client = require("./client");
 const Content = require("./content");
 const Command = require("./command");
 const KV = require("./kv");
 const DB = require("./db");
+const auth = require("./auth");
 
 DB.Init();
 
@@ -15,8 +17,14 @@ const lnKey = process.env.LNM_KEY;
 const lnSecret = process.env.LNM_SECRET;
 const lnPass = process.env.LNM_PASSPHRASE;
 
+const displayChatError = (e, chatId) => {
+    LogLevel.warn(`error=[e: ${e}]`);
+    Client.ElMarco.sendMessage(chatId, Content.renderError(e));
+}
+
+const authMiddleware = useMdw(auth.authMiddleware(displayChatError));
+
 Client.ElMarco.onText(/\/start/, async (msg) => {
-    // ask for api credentials
     const msgSent = await Client.ElMarco.sendMessage(
         msg.chat.id,
         Content.renderStartAPICreds(),
@@ -49,8 +57,16 @@ Client.ElMarco.onText(/\/start/, async (msg) => {
                 .then(async _ => {
                     await DB.SaveAPICreds(msg.chat.id, clientId, clientSecret, passphrase);
 
-                    // TODO init a session with passphrase
-                    // init a session
+                    // TODO allow user to define session
+                    await KV.store(passphrase, msg.chat.id);
+
+                    Client.ElMarco.sendMessage(
+                        msg.chat.id,
+                        Content.renderStartSuccess(),
+                        {
+                            parse_mode: "HTML",
+                        },
+                    );
                 })
                 .catch(e => {
                     Client.ElMarco.sendMessage(
@@ -93,8 +109,9 @@ Client.ElMarco.onText(/\/options/, (msg) => {
         .catch((e) => displayChatError(e, msg.chat.id));
 });
 
-Client.ElMarco.onText(/\/futures/, (msg) => {
-    Client.GetLNMarketClient(lnKey, lnSecret, lnPass).futuresGetPositions()
+Client.ElMarco.onText(/\/futures/, authMiddleware(function (msg) {
+    const apiCreds = this.getAPICreds();
+    Client.GetLNMarketClient(apiCreds.api_client, apiCreds.api_secret, apiCreds.passphrase).futuresGetPositions()
         .then((res) => {
             if (res.length === 0) {
                 Client.ElMarco.sendMessage(msg.chat.id, Content.renderNoFutures(), { parse_mode: "HTML" });
@@ -105,7 +122,7 @@ Client.ElMarco.onText(/\/futures/, (msg) => {
             }
         })
         .catch((e) => displayChatError(e, msg.chat.id));
-});
+}));
 
 Client.ElMarco.onText(/\/createfuture .*/gi, async (msg, match) => {
     const paramsRgx = new RegExp(/\/createfuture (l|s)( q=\d+[,|\.]?\d+)? (x=\d+)( p=\d+[,|\.]?\d+)?( m=\d+[,|\.]?\d+)?( sl=\d+[,|\.]?\d+)?( tp=\d+[,|\.]?\d+)?/gi);
@@ -333,9 +350,4 @@ const renderDefaultMenu = async (chatID, message) => {
             one_time_keyboard: true,
         },
     });
-}
-
-const displayChatError = (e, chatID) => {
-    LogLevel.warn(`error=[e: ${e}]`);
-    Client.ElMarco.sendMessage(chatID, Content.renderError(e));
 }

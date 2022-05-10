@@ -33,7 +33,7 @@ const Decrypt = (encryptedValue, passphrase) => {
 const generateKey = (passphrase) => {
     return Crypto.createHash("sha256")
         .update(String(passphrase))
-        .digest('base64')
+        .digest("base64")
         .substring(0, 32);
 }
 

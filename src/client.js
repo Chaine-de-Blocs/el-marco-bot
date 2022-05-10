@@ -6,9 +6,6 @@ const MongoClient = require("mongodb").MongoClient;
 /**
  * Init LNMarket client
  */
-// const lnKey = process.env.LNM_KEY;
-// const lnSecret = process.env.LNM_SECRET;
-// const lnPass = process.env.LNM_PASSPHRASE;
 
 const GetLNMarketClient = (lnKey, lnSecret, lnPass) => {
     return new LNMarketsRest({
