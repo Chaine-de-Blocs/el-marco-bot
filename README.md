@@ -1,7 +1,8 @@
 # El Marrrrrcoooo Botto
 
 - [x] Créer un future
-- [ ] Créer une option
+  - [ ] Ajout de ticker
+- [ ] Créer une option (coming later)
 - [x] Lister les futures ouverts
 - [x] Lister les options ouvertes
 - [x] Afficher la balance
