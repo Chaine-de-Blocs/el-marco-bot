@@ -89,7 +89,7 @@ Client.ElMarco.onText(/\/start/, async (msg) => {
 Client.ElMarco.onText(/\/home/, async (msg) => {
     renderDefaultMenu(msg.chat.id, "Back to basico on fait quoi ?");
 });
-Client.ElMarco.onText(/\/help|Aide/, async (msg) => {
+Client.ElMarco.onText(new RegExp(`/help|^${Content.Emoji.HelpEmoji}.*`), async (msg) => {
     renderDefaultMenu(msg.chat.id, Content.renderHelp());
 });
 
@@ -130,10 +130,10 @@ Client.ElMarco.onText(/\/futures/, authMiddleware(function (msg) {
         .catch((e) => displayChatError(e, msg.chat.id));
 }));
 
-Client.ElMarco.onText(/\/createfuture|Créer un Future/, (msg) => {
+Client.ElMarco.onText(new RegExp(`/createfuture|^${Content.Emoji.FutureEmoji}.*`), (msg) => {
     renderDefaultMenu(msg.chat.id, Content.renderCreateFutureParamsError())
 });
-Client.ElMarco.onText(/Créer une Option/, (msg) => {
+Client.ElMarco.onText(new RegExp(`^${Content.Emoji.OptionEmoji}.*`), (msg) => {
     renderDefaultMenu(msg.chat.id, Content.renderCmdNotAvailable());
 })
 
@@ -275,7 +275,7 @@ Client.ElMarco.onText(/\/closefuture/, async (msg) => {
 });
 
 // Special case for Balance button in keyboard markup
-Client.ElMarco.onText(/🌟.*/, (msg) => {
+Client.ElMarco.onText(new RegExp(`${Content.Emoji.BalanceEmoji}.*`), (msg) => {
     renderDefaultMenu(msg.chat.id, Content.renderNeedMe());
 })
 
@@ -356,8 +356,8 @@ const renderDefaultMenu = async (chatID, message) => {
     const lnmUserInfo = await Client.GetLNMarketClient(lnKey, lnSecret, lnPass).getUser();
 
     const menu = [
-        [`🌟 Ta balance est de ${lnmUserInfo.balance} sat`],
-        ["Créer un Future", "Créer une Option", "Aide"]
+        [`${Content.Emoji.BalanceEmoji} Ta balance est de ${lnmUserInfo.balance} sat`],
+        [`${Content.Emoji.FutureEmoji} Créer un Future`, `${Content.Emoji.OptionEmoji} Créer une Option`, `${Content.Emoji.HelpEmoji} Aide`]
     ];
 
     Client.ElMarco.sendMessage(chatID, message, {

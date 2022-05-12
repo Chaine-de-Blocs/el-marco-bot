@@ -1,13 +1,18 @@
-/**
- * @returns {String}
- */
-const renderWelcome = () => {
-    return `
-Bienvenido
-
-C'est El Marco
-    `;
-}
+const BalanceEmoji = "🌟";
+const BuyEmoji = "📈";
+const CheckEmoji = "✅";
+const ExpEmoji = "🕐";
+const FutureEmoji = "📜";
+const HelpEmoji = "🙋";
+const LeverageEmoji = "🚀";
+const LiquidationEmoji = "🔫";
+const LossEmoji = "🔴";
+const MarginEmoji = "📏";
+const OptionEmoji = "🪙";
+const PriceEmoji = "💳";
+const ProfitEmoji = "🟢";
+const QtyEmoji = "💰";
+const SellEmoji = "📉";
 
 /**
  * @returns {String}
@@ -25,15 +30,15 @@ Créé ton client API en allant ici <a href="https://testnet.lnmarkets.com/user/
 <b>Pense bien à noter ton <code>passphrase</code> tu en auras besoin pour sécuriser l'accès.</b>
 
 Pour qu'on puisse bien collaborer donne moi les accès suivants :
-✅ Get user
-✅ Deposit
-✅ Get open and running positions
-✅ Get closed positions
-✅ Create positions
-✅ Modify positions
-✅ Close and cancel positions
-✅ Make a new options trade
-✅ Get options trades
+${CheckEmoji} Get user
+${CheckEmoji} Deposit
+${CheckEmoji} Get open and running positions
+${CheckEmoji} Get closed positions
+${CheckEmoji} Create positions
+${CheckEmoji} Modify positions
+${CheckEmoji} Close and cancel positions
+${CheckEmoji} Make a new options trade
+${CheckEmoji} Get options trades
 
 Tu peux ne pas tout mettre, certaines de mes compétences ne pourront pas être mises à ton service Gringos.
 
@@ -102,12 +107,12 @@ const renderOption = (option) => {
 Option <code>${option.id}</code>
 <i>Créée le ${option.created_at.toLocaleDateString()} à ${option.created_at.toLocaleTimeString()}</i>
 
-🕐 Expire le ${option.expire_at.toLocaleDateString()} à ${option.created_at.toLocaleTimeString()}
+${ExpEmoji} Expire le ${option.expire_at.toLocaleDateString()} à ${option.created_at.toLocaleTimeString()}
 
 ⚡ Strike à <b>${option.strike} USD</b>
-💰 Quantité <b>${option.quantity} USD</b>
-📈 La marge est de <b>${option.margin} USD</b>
-----------------------------------------------
+${QtyEmoji} Quantité <b>${option.quantity} USD</b>
+${MarginEmoji} La marge est de <b>${option.margin} USD</b>
+${renderHr}
     `;
 }
 
@@ -131,12 +136,12 @@ const renderFuture = (future) => {
 Future <code>${future.pid}</code>
 <i>Créé le ${createdAt.toLocaleDateString()} à ${createdAt.toLocaleTimeString()}</i>
 
-💰 Quantité <b>${future.quantity} USD</b>
-🚀 Le levier est de <u>x${future.leverage}</u>
+${QtyEmoji} Quantité <b>${future.quantity} USD</b>
+${LeverageEmoji} Le levier est de <u>x${future.leverage}</u>
 
-💸 Prix d'entré <b>${future.price} USD</b>
-📈 Margin de <b>${future.margin} sat</b>
-🔫 Liquidation à <b>${future.liquidation} USD</b>
+${PriceEmoji} Prix d'entré <b>${future.price} USD</b>
+${MarginEmoji} Margin de <b>${future.margin} sat</b>
+${LiquidationEmoji} Liquidation à <b>${future.liquidation} USD</b>
 
 ${renderSL(future.stoploss)}
 ${renderTP(future.takeprofit)}
@@ -159,8 +164,8 @@ const renderNoFutures = () => {
 const renderClosingFuture = (futures) => {
     let futuresMsg = "";
     for(const f of futures) {
-        const plEmoji = f.pl >= 0 ? "🟢 +" : "🔴 ";
-        futuresMsg += `\n🏷️ Future <code>${f.pid}</code> ${plEmoji}<b>${f.pl} USD</b> - Margin <b>${f.margin} USD</b>`
+        const plEmoji = f.pl >= 0 ? `${ProfitEmoji} +` : `${LossEmoji} `;
+        futuresMsg += `\n${FutureEmoji} Future <code>${f.pid}</code> ${plEmoji}<b>${f.pl} USD</b> - Margin <b>${f.margin} USD</b>`
     }
     return `
 Oy Gringos, tu veux qu'on clôture un Future ? Pas de problème, tiens voilà tes Futures ouverts :
@@ -206,10 +211,11 @@ const renderFutureReview = (params) => {
 On va créer ce Future :
 
 Future ${renderSide(params.side)}
-💳 Au prix ${params.price ? params.price+"USD" : "Marché"}
-${params.quantity ? "💰 Quantité de " + params.quantity + "USD" : ""}
-🚀 Levier x${params.leverage}
-${params.margin ? "📏 Marge de " + params.margin + "sat" : ""}
+${PriceEmoji} Au prix ${params.price ? params.price+"USD" : "Marché"}
+${params.quantity ? `${QtyEmoji} Quantité de ` + params.quantity + "USD" : ""}
+${LeverageEmoji} Levier x${params.leverage}
+${params.margin ? `${MarginEmoji} Marge de ` + params.margin + "sat" : ""}
+
 
 ${renderSL(params.stoploss)}
 ${renderTP(params.takeprofit)}
@@ -336,9 +342,9 @@ const renderTP = (tp) => {
  */
 const renderPL = (pl) => {
     if (pl <= 0) {
-        return `🔴 P/L à <b>${pl} sat</b>`;
+        return `${LossEmoji} P/L à <b>${pl} sat</b>`;
     }
-    return `🟢 P/L à +<b>${pl} sat</b>`;
+    return `${ProfitEmoji} P/L à +<b>${pl} sat</b>`;
 }
 
 /**
@@ -347,9 +353,9 @@ const renderPL = (pl) => {
  */
 const renderSide = (side) => {
     if (side === "b") {
-        return "📈 Buy";
+        return `${BuyEmoji} Buy`;
     }
-    return "📉 Sell";
+    return `${SellEmoji} Sell`;
 }
 
 /**
@@ -374,7 +380,6 @@ Laisse un mot sur le Github si tu veux à tout prix ce que tu cherches <a href="
 }
 
 module.exports = {
-    renderWelcome,
     renderHelp,
     renderOption,
     renderFuture,
@@ -392,4 +397,21 @@ module.exports = {
     renderStartSuccess,
     renderRequireNewsession,
     renderCmdNotAvailable,
+    Emoji: {
+        FutureEmoji,
+        OptionEmoji,
+        CheckEmoji,
+        ExpEmoji,
+        QtyEmoji,
+        MarginEmoji,
+        LeverageEmoji,
+        PriceEmoji,
+        LiquidationEmoji,
+        BuyEmoji,
+        SellEmoji,
+        BalanceEmoji,
+        ProfitEmoji,
+        LossEmoji,
+        HelpEmoji,
+    },
 };
