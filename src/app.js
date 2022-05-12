@@ -1,5 +1,3 @@
-// remove this after tests
-// B9toRtCcXTZdDjK2TSxM+3TJwWpEMNR8iPrqVK9YPKU= oKOPtB4XciODbqmGrw61gEq2RYtwE9TtZb+9ePs0Pznt3VMd8eayivEXLu+Gk3D83t4x00zX6E6+7+36iAP08w== i7f6700b1g98f
 require("dotenv").config();
 const LogLevel = require("loglevel");
 const useMdw = require("node-telegram-bot-api-middleware").use;
@@ -9,22 +7,18 @@ const Content = require("./content");
 const Command = require("./command");
 const KV = require("./kv");
 const DB = require("./db");
-const auth = require("./auth");
+const Auth = require("./auth");
 
 DB.Init();
-
-const lnKey = process.env.LNM_KEY;
-const lnSecret = process.env.LNM_SECRET;
-const lnPass = process.env.LNM_PASSPHRASE;
 
 const displayChatError = (e, chatId) => {
     LogLevel.warn(`error=[e: ${e}]`);
     Client.ElMarco.sendMessage(chatId, Content.renderError(e));
 }
 
-const authMiddleware = useMdw(auth.authMiddleware(displayChatError));
+const authMiddleware = useMdw(Auth.authMiddleware(displayChatError));
 
-Client.ElMarco.onText(/\/start/, async (msg) => {
+Client.ElMarco.onText(new RegExp(`/start|^${Content.Emoji.StartEmoji}.*`), async (msg) => {
     const msgSent = await Client.ElMarco.sendMessage(
         msg.chat.id,
         Content.renderStartAPICreds(),
@@ -97,9 +91,14 @@ Client.ElMarco.onText(/\/balance/, (msg) => {
     renderDefaultMenu(msg.chat.id, "Je mets ta balance à jour")
 });
 
-Client.ElMarco.onText(/\/options/, (msg) => {
-    Client.GetLNMarketClient(lnKey, lnSecret, lnPass).optionsGetPositions()
+Client.ElMarco.onText(/\/options/, authMiddleware(function(msg) {
+    const apiCreds = this.getAPICreds();
+    Client.GetLNMarketClient(apiCreds.api_client, apiCreds.api_secret, apiCreds.passphrase).optionsGetPositions()
         .then((res) => {
+            if (res.length === 0) {
+                Client.ElMarco.sendMessage(msg.chat.id, Content.renderNoOptions(), { parse_mode: "HTML" });
+                return;
+            }
             for(const opt of res) {
                 const contentMsg = Content.renderOption({
                     id: opt.id,
@@ -113,7 +112,7 @@ Client.ElMarco.onText(/\/options/, (msg) => {
             }
         })
         .catch((e) => displayChatError(e, msg.chat.id));
-});
+}));
 
 Client.ElMarco.onText(/\/futures/, authMiddleware(function (msg) {
     const apiCreds = this.getAPICreds();
@@ -226,8 +225,9 @@ Client.ElMarco.onText(/\/createfuture .*/gi, async (msg, match) => {
     );
 });
 
-Client.ElMarco.onText(/\/closefuture/, async (msg) => {
-    Client.GetLNMarketClient(lnKey, lnSecret, lnPass).futuresGetPositions()
+Client.ElMarco.onText(/\/closefuture/, authMiddleware(function(msg) {
+    const apiCreds = this.getAPICreds();
+    Client.GetLNMarketClient(apiCreds.api_client, apiCreds.api_secret, apiCreds.passphrase).futuresGetPositions()
         .then(async (res) => {
             const msgSent = await Client.ElMarco.sendMessage(msg.chat.id, Content.renderClosingFuture(res), {
                 parse_mode: "HTML",
@@ -272,14 +272,14 @@ Client.ElMarco.onText(/\/closefuture/, async (msg) => {
             });
         })
         .catch((e) => displayChatError(e, msg.chat.id))
-});
+}));
 
 // Special case for Balance button in keyboard markup
 Client.ElMarco.onText(new RegExp(`${Content.Emoji.BalanceEmoji}.*`), (msg) => {
     renderDefaultMenu(msg.chat.id, Content.renderNeedMe());
 })
 
-Client.ElMarco.on("callback_query", (query) => {
+Client.ElMarco.on("callback_query", async (query) => {
     const data = query.data.split(";");
     if (!data[0]) {
         Client.ElMarco.answerInlineQuery(query.id);
@@ -287,8 +287,30 @@ Client.ElMarco.on("callback_query", (query) => {
         return;
     }
 
+    let api_client, api_secret, passphrase;
+    let isAuth = false;
+    try {
+        const apiCreds = await Auth.fetchAPICreds(query.message.chat.id);
+        api_client = apiCreds.api_client;
+        api_secret = apiCreds.api_secret;
+        passphrase = apiCreds.passphrase;
+        isAuth = true;
+    } catch(e) {
+        LogLevel.trace("dont have API creds", `[err=${e},chat_id=${query.message.chat.id}]`);
+    }
+
     switch(data[0]) {
         case Command.Actions.ActionCloseFuture:
+            // TODO refactor command actions with auth require
+            if (isAuth) {
+                Client.ElMarco.answerCallbackQuery(query.id);
+                Client.ElMarco.sendMessage(
+                    query.message.chat.id,
+                    Content.renderRequireNewsession(),
+                );
+                return;
+            }
+
             if (data[1] === Command.Actions.ActionCancel) {
                 Client.ElMarco.answerCallbackQuery(query.id, {
                     text: "No problemo, on ne le clôture pas !",
@@ -298,7 +320,7 @@ Client.ElMarco.on("callback_query", (query) => {
                 break;
             }
 
-            Client.GetLNMarketClient(lnKey, lnSecret, lnPass).futuresClosePosition({ pid: data[1] })
+            Client.GetLNMarketClient(api_client, api_secret, passphrase).futuresClosePosition({ pid: data[1] })
                 .then((_) => {
                     Client.ElMarco.answerCallbackQuery(query.id);
                     Client.ElMarco.deleteMessage(query.message.chat.id, query.message.message_id);
@@ -314,6 +336,15 @@ Client.ElMarco.on("callback_query", (query) => {
                 );
             break;
         case Command.Actions.ActionCreateFuture:
+            if (isAuth) {
+                Client.ElMarco.answerCallbackQuery(query.id);
+                Client.ElMarco.sendMessage(
+                    query.message.chat.id,
+                    Content.renderRequireNewsession(),
+                );
+                return;
+            }
+
             if (data[1] === Command.Actions.ActionCancel) {
                 Client.ElMarco.answerCallbackQuery(query.id, {
                     text: "No problemo, on va pas créer le Future",
@@ -326,7 +357,7 @@ Client.ElMarco.on("callback_query", (query) => {
             KV.get(data[1])
                 .then(async value => {
                     const params = JSON.parse(value);
-                    const res = await Client.GetLNMarketClient(lnKey, lnSecret, lnPass).futuresNewPosition(params);
+                    const res = await Client.GetLNMarketClient(api_client, api_secret, passphrase).futuresNewPosition(params);
 
                     Client.ElMarco.answerCallbackQuery(query.id);
                     Client.ElMarco.deleteMessage(query.message.chat.id, query.message.message_id);
@@ -353,10 +384,21 @@ Client.ElMarco.on("callback_query", (query) => {
 });
 
 const renderDefaultMenu = async (chatID, message) => {
-    const lnmUserInfo = await Client.GetLNMarketClient(lnKey, lnSecret, lnPass).getUser();
+    let balance;
+    try {
+        const apiCreds = await Auth.fetchAPICreds(chatID);
+        const lnmUserInfo = await Client.GetLNMarketClient(apiCreds.api_client, apiCreds.api_secret, apiCreds.passphrase).getUser();
+        balance = lnmUserInfo.balance;
+    } catch(e) {
+        LogLevel.trace("failed to fetch balance");
+    }
+
+    const balanceBtn = typeof balance !== "undefined"
+        ? `${Content.Emoji.BalanceEmoji} Ta balance est de ${balance} sat` 
+        : `${Content.Emoji.StartEmoji} Créer une session pour commencer`;
 
     const menu = [
-        [`${Content.Emoji.BalanceEmoji} Ta balance est de ${lnmUserInfo.balance} sat`],
+        [balanceBtn],
         [`${Content.Emoji.FutureEmoji} Créer un Future`, `${Content.Emoji.OptionEmoji} Créer une Option`, `${Content.Emoji.HelpEmoji} Aide`]
     ];
 

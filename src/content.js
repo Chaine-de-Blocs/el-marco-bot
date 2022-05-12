@@ -13,6 +13,7 @@ const PriceEmoji = "💳";
 const ProfitEmoji = "🟢";
 const QtyEmoji = "💰";
 const SellEmoji = "📉";
+const StartEmoji = "🎬";
 
 /**
  * @returns {String}
@@ -155,6 +156,14 @@ ${renderPL(future.pl)}
  */
 const renderNoFutures = () => {
     return `Tu n'as aucun Future d'ouvert`;
+}
+
+/**
+ * 
+ * @returns {String}
+ */
+const renderNoOptions = () => {
+    return `Tu n'a aucune Option d'ouverte`;
 }
 
 /**
@@ -388,6 +397,7 @@ module.exports = {
     renderError,
     renderCloseFuture,
     renderNoFutures,
+    renderNoOptions,
     renderHr,
     renderCreateFutureParamsError,
     renderFutureCreated,
@@ -413,5 +423,6 @@ module.exports = {
         ProfitEmoji,
         LossEmoji,
         HelpEmoji,
+        StartEmoji,
     },
 };
