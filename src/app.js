@@ -43,7 +43,13 @@ Client.ElMarco.onText(/\/start/, async (msg) => {
             const creds = replyMsg.text.split(" ");
 
             if (creds.length !== 3) {
-                // TODO error
+                Client.ElMarco.sendMessage(
+                    msg.chat.id,
+                    Content.renderRequireNewsession(),
+                    {
+                        parse_mode: "HTML",
+                    },
+                );
                 return;
             }
 
@@ -123,6 +129,16 @@ Client.ElMarco.onText(/\/futures/, authMiddleware(function (msg) {
         })
         .catch((e) => displayChatError(e, msg.chat.id));
 }));
+
+Client.ElMarco.onText(/\/createfuture/, (msg, match) => {
+    Client.ElMarco.sendMessage(
+        msg.chat.id,
+        Content.renderCreateFutureParamsError(),
+        {
+            parse_mode: "HTML",
+        },
+    );
+});
 
 Client.ElMarco.onText(/\/createfuture .*/gi, async (msg, match) => {
     const paramsRgx = new RegExp(/\/createfuture (l|s)( q=\d+[,|\.]?\d+)? (x=\d+)( p=\d+[,|\.]?\d+)?( m=\d+[,|\.]?\d+)?( sl=\d+[,|\.]?\d+)?( tp=\d+[,|\.]?\d+)?/gi);
@@ -317,8 +333,13 @@ Client.ElMarco.on("callback_query", (query) => {
 
                     Client.ElMarco.answerCallbackQuery(query.id);
                     Client.ElMarco.deleteMessage(query.message.chat.id, query.message.message_id);
-                    Client.ElMarco.sendMessage(query.message.chat.id, Content.renderFutureCreated(res));
-                    Client.GetLNMarketClient(lnKey, lnSecret, lnPass).futuresNewPosition(params)
+                    Client.ElMarco.sendMessage(
+                        query.message.chat.id,
+                        Content.renderFutureCreated(res.position),
+                        {
+                            parse_mode: "HTML",
+                        }
+                    );
                 })
                 .catch((e) => displayChatError(`Error futuresNewPosition ${e}`, query.message.chat.id))
                 .finally(() =>

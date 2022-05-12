@@ -57,6 +57,12 @@ On peut commencer les choses sérieuses, tape <code>/help</code> pour voir les s
     `;
 }
 
+const renderRequireNewsession = () => {
+    return `
+Ta session est terminée pour ta sécurité, refais en une en tapant <code>/start</code>
+    `;
+}
+
 /**
  * @returns {String}
  */
@@ -248,7 +254,7 @@ ${renderTP(params.takeprofit)}
  */
 const renderFutureCreated = (future) => {
     return `
-Le Future ${future.pid} a été créé Gringos ! Tu le verras en cherchant <code>/futures</code>
+Le Future <code>${future.pid}</code> a été créé Gringos ! Tu le verras en cherchant <code>/futures</code>
     `
 }
 
@@ -377,4 +383,5 @@ module.exports = {
     renderStartAPICreds,
     renderBadAPICreds,
     renderStartSuccess,
+    renderRequireNewsession,
 };
