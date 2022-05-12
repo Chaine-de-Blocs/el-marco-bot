@@ -1,7 +1,0 @@
-Tue, 10 May 2022 00:30:38 GMT node-telegram-bot-api deprecated Automatic enabling of cancellation of promises is deprecated.
-In the future, you will have to enable it yourself.
-See https://github.com/yagop/node-telegram-bot-api/issues/319. at node:internal/modules/cjs/loader:1105:14
-error=[e: LNMarketsRestError: You do not have permission to reach this ressource.]
-error: [polling_error] {"code":"EFATAL","message":"EFATAL: Error: socket hang up"}
-error: [polling_error] {"code":"EFATAL","message":"EFATAL: Error: socket hang up"}
-error: [polling_error] {"code":"EFATAL","message":"EFATAL: Error: socket hang up"}
