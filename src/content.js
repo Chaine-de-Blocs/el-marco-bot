@@ -76,7 +76,13 @@ Tout ce qui est entre des [] sont des paramètres optionnels.
 
 Pour chaque commande je te donne des précisions en italique, je suis simple et efficace mais on fait de la finance sur LN ! Pas un truc de rigolo
 
+<code>/balance</code> Pour afficher ta balance sur LNMarket
+${renderCloseFutureHelp()}
 ${renderCreateFutureHelp()}
+<code>/futures</code> Pour lister tes Futures ouverts
+<code>/help</code> Pour afficher le menu d'aide
+<code>/home</code> Pour revenir à l'accueil
+<code>/start</code> Pour démarrer ou refaire une session avec de nouveaux accès API LNMarket
     `;
 }
 
@@ -165,31 +171,11 @@ ${futuresMsg}
 }
 
 /**
- * @param {Object} future
- * @param {String} [future.type]
- * @param {String} [future.side]
- * @param {String} [future.margin]
- * @param {String} [future.leverage]
- * @param {String} [future.quantity]
- * @param {String} [future.takeprofit]
- * @param {String} [future.stoploss]
- * @param {String} [future.price]
- * @returns {String}
- */
-const renderCreateFuture = (future) => {
-    return `
-Créé future
-    `
-}
-
-/**
  * @returns {String}
  */
 const renderCreateFutureParamsError = () => {
     return `
-Wooops je ne vois pas comment tu veux créer ce Future 🤔
-
-Pour rappel :
+Okay tu veux créer un Future voilà comment on fait par chez moi :
 
 ${renderCreateFutureHelp()}
 
@@ -271,7 +257,7 @@ const renderCloseFuture = (futureID) => {
  * @returns {String}
  */
 const renderCreateFutureHelp = () => {
-    return `/createfuture Créer un Future <code>(l ou s) [q=&lt;USD quantity&gt;] x=&lt;levier&gt; [p=&lt;prix d'entrée&gt;] [m=&lt;marge&gt;] [sl=&lt;Stop Loss&gt;] [tp=&lt;Take Profit&gt;]</code>
+    return `<code>/createfuture</code> Créer un Future <code>(l ou s) [q=&lt;USD quantity&gt;] x=&lt;levier&gt; [p=&lt;prix d'entrée&gt;] [m=&lt;marge&gt;] [sl=&lt;Stop Loss&gt;] [tp=&lt;Take Profit&gt;]</code>
 <i>Mets <code>l</code> pour faire un Long (Buy) et <code>s</code> pour faire un Short (Sell)
 
 <code>q</code> c'est pour la quantité
@@ -280,6 +266,16 @@ const renderCreateFutureHelp = () => {
 
 <code>p</code> c'est pour préciser le limit price, si tu ne le mets pas alors je vais créer un order au prix de marché.
 </i>`; 
+}
+
+/**
+ * 
+ * @returns {String}
+ */
+const renderCloseFutureHelp = () => {
+    return `
+<code>/closefuture</code> Pour clôturer un Future rien de plus simple tape juste <code>/closefuture</code> et je te guide
+    `;
 }
 
 /**
@@ -379,7 +375,6 @@ module.exports = {
     renderCreateFutureParamsError,
     renderFutureCreated,
     renderFutureReview,
-    renderCreateFuture,
     renderStartAPICreds,
     renderBadAPICreds,
     renderStartSuccess,

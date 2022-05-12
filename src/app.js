@@ -89,7 +89,7 @@ Client.ElMarco.onText(/\/start/, async (msg) => {
 Client.ElMarco.onText(/\/home/, async (msg) => {
     renderDefaultMenu(msg.chat.id, "Back to basico on fait quoi ?");
 });
-Client.ElMarco.onText(/\/help/, async (msg) => {
+Client.ElMarco.onText(/\/help|Aide/, async (msg) => {
     renderDefaultMenu(msg.chat.id, Content.renderHelp());
 });
 
@@ -130,14 +130,8 @@ Client.ElMarco.onText(/\/futures/, authMiddleware(function (msg) {
         .catch((e) => displayChatError(e, msg.chat.id));
 }));
 
-Client.ElMarco.onText(/\/createfuture/, (msg, match) => {
-    Client.ElMarco.sendMessage(
-        msg.chat.id,
-        Content.renderCreateFutureParamsError(),
-        {
-            parse_mode: "HTML",
-        },
-    );
+Client.ElMarco.onText(/\/createfuture|Créer un Future/, (msg, match) => {
+    renderDefaultMenu(msg.chat.id, Content.renderCreateFutureParamsError())
 });
 
 Client.ElMarco.onText(/\/createfuture .*/gi, async (msg, match) => {
