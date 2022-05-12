@@ -18,7 +18,7 @@ const displayChatError = (e, chatId) => {
 
 const authMiddleware = useMdw(Auth.authMiddleware(displayChatError));
 
-Client.ElMarco.onText(new RegExp(`/start|^${Content.Emoji.StartEmoji}.*`), async (msg) => {
+Client.ElMarco.onText(new RegExp(`^(\/start)( )*$|^${Content.Emoji.StartEmoji}.*`), async (msg) => {
     const msgSent = await Client.ElMarco.sendMessage(
         msg.chat.id,
         Content.renderStartAPICreds(),
@@ -83,7 +83,7 @@ Client.ElMarco.onText(new RegExp(`/start|^${Content.Emoji.StartEmoji}.*`), async
 Client.ElMarco.onText(/\/home/, async (msg) => {
     renderDefaultMenu(msg.chat.id, "Back to basico on fait quoi ?");
 });
-Client.ElMarco.onText(new RegExp(`/help|^${Content.Emoji.HelpEmoji}.*`), async (msg) => {
+Client.ElMarco.onText(new RegExp(`^(\/help)( )*$|^${Content.Emoji.HelpEmoji}.*`), async (msg) => {
     renderDefaultMenu(msg.chat.id, Content.renderHelp());
 });
 
@@ -129,14 +129,14 @@ Client.ElMarco.onText(/\/futures/, authMiddleware(function (msg) {
         .catch((e) => displayChatError(e, msg.chat.id));
 }));
 
-Client.ElMarco.onText(new RegExp(`/createfuture|^${Content.Emoji.FutureEmoji}.*`), (msg) => {
+Client.ElMarco.onText(new RegExp(`^(\/createfuture)( )*$|^${Content.Emoji.FutureEmoji}.*`), (msg) => {
     renderDefaultMenu(msg.chat.id, Content.renderCreateFutureParamsError())
 });
 Client.ElMarco.onText(new RegExp(`^${Content.Emoji.OptionEmoji}.*`), (msg) => {
     renderDefaultMenu(msg.chat.id, Content.renderCmdNotAvailable());
 })
 
-Client.ElMarco.onText(/\/createfuture .*/gi, async (msg, match) => {
+Client.ElMarco.onText(/\/createfuture .*/gi, authMiddleware(async function(msg, match) {
     const paramsRgx = new RegExp(/\/createfuture (l|s)( q=\d+[,|\.]?\d+)? (x=\d+)( p=\d+[,|\.]?\d+)?( m=\d+[,|\.]?\d+)?( sl=\d+[,|\.]?\d+)?( tp=\d+[,|\.]?\d+)?/gi);
 
     const matchParams = paramsRgx.exec(match[0]);
@@ -205,9 +205,25 @@ Client.ElMarco.onText(/\/createfuture .*/gi, async (msg, match) => {
         return
     }
 
+    let displayPrice = futureParam.price;
+
+    if (type === "m") {
+        try {
+            const apiCreds = this.getAPICreds();
+
+            const ticker = await Client.GetLNMarketClient(apiCreds.api_client, apiCreds.api_secret, apiCreds.passphrase)
+                .futuresGetTicker();
+            
+            displayPrice = ticker.offer;
+        } catch(e) {
+            LogLevel.trace("fetch ticker err", `[err=${e}]`)
+            displayPrice = undefined;
+        }
+    }
+
     Client.ElMarco.sendMessage(
         msg.chat.id,
-        Content.renderFutureReview(futureParam),
+        Content.renderFutureReview(futureParam, displayPrice),
         {
             parse_mode: "HTML",
             reply_markup: {
@@ -223,7 +239,7 @@ Client.ElMarco.onText(/\/createfuture .*/gi, async (msg, match) => {
             }
         }
     );
-});
+}));
 
 Client.ElMarco.onText(/\/closefuture/, authMiddleware(function(msg) {
     const apiCreds = this.getAPICreds();
@@ -302,11 +318,14 @@ Client.ElMarco.on("callback_query", async (query) => {
     switch(data[0]) {
         case Command.Actions.ActionCloseFuture:
             // TODO refactor command actions with auth require
-            if (isAuth) {
+            if (!isAuth) {
                 Client.ElMarco.answerCallbackQuery(query.id);
                 Client.ElMarco.sendMessage(
                     query.message.chat.id,
                     Content.renderRequireNewsession(),
+                    {
+                        parse_mode: "HTML",
+                    },
                 );
                 return;
             }
@@ -336,11 +355,14 @@ Client.ElMarco.on("callback_query", async (query) => {
                 );
             break;
         case Command.Actions.ActionCreateFuture:
-            if (isAuth) {
+            if (!isAuth) {
                 Client.ElMarco.answerCallbackQuery(query.id);
                 Client.ElMarco.sendMessage(
                     query.message.chat.id,
                     Content.renderRequireNewsession(),
+                    {
+                        parse_mode: "HTML",
+                    },
                 );
                 return;
             }

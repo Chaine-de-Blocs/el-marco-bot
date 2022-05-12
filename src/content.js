@@ -211,20 +211,19 @@ Pour t'inspirer voilà quelques commandes pour créer un Future :
  * @param {Number} [params.takeprofit] 
  * @param {Number} [params.stoploss] 
  * @param {Number} [params.price]
+ * @param {Number} displayPrice price to display if market
  * @returns {String}
  */
-const renderFutureReview = (params) => {
+const renderFutureReview = (params, displayPrice) => {
     // TODO must know the margin by calculation
-    // TODO display market price if Market (ticker)
     return `
 On va créer ce Future :
 
 Future ${renderSide(params.side)}
-${PriceEmoji} Au prix ${params.price ? params.price+"USD" : "Marché"}
+${PriceEmoji} Au prix <b>${params.price ? params.price+"USD" : `Marché (${displayPrice}USD)`}</b>
 ${params.quantity ? `${QtyEmoji} Quantité de ` + params.quantity + "USD" : ""}
 ${LeverageEmoji} Levier x${params.leverage}
 ${params.margin ? `${MarginEmoji} Marge de ` + params.margin + "sat" : ""}
-
 
 ${renderSL(params.stoploss)}
 ${renderTP(params.takeprofit)}
