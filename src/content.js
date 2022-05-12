@@ -361,6 +361,18 @@ const renderError = (e) => {
     return `Oulah y'a une erreur : ${e}`;
 }
 
+/**
+ * 
+ * @returns {String}
+ */
+const renderCmdNotAvailable = () => {
+    return `
+Cette fonctionnalité n'est pas encore dispo, c'est pas d'chance.
+
+Laisse un mot sur le Github si tu veux à tout prix ce que tu cherches <a href="https://github.com/Chaine-de-Blocs/el-marco-bot">Aller sur le Github de Elmarco</a>
+    `;
+}
+
 module.exports = {
     renderWelcome,
     renderHelp,
@@ -379,4 +391,5 @@ module.exports = {
     renderBadAPICreds,
     renderStartSuccess,
     renderRequireNewsession,
+    renderCmdNotAvailable,
 };

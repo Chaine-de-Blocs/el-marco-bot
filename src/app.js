@@ -130,9 +130,12 @@ Client.ElMarco.onText(/\/futures/, authMiddleware(function (msg) {
         .catch((e) => displayChatError(e, msg.chat.id));
 }));
 
-Client.ElMarco.onText(/\/createfuture|Créer un Future/, (msg, match) => {
+Client.ElMarco.onText(/\/createfuture|Créer un Future/, (msg) => {
     renderDefaultMenu(msg.chat.id, Content.renderCreateFutureParamsError())
 });
+Client.ElMarco.onText(/Créer une Option/, (msg) => {
+    renderDefaultMenu(msg.chat.id, Content.renderCmdNotAvailable());
+})
 
 Client.ElMarco.onText(/\/createfuture .*/gi, async (msg, match) => {
     const paramsRgx = new RegExp(/\/createfuture (l|s)( q=\d+[,|\.]?\d+)? (x=\d+)( p=\d+[,|\.]?\d+)?( m=\d+[,|\.]?\d+)?( sl=\d+[,|\.]?\d+)?( tp=\d+[,|\.]?\d+)?/gi);
