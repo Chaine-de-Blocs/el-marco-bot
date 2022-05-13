@@ -140,8 +140,6 @@ Client.ElMarco.onText(/\/createfuture .*/gi, authMiddleware(async function(msg, 
     const paramsRgx = new RegExp(/\/createfuture (l|s)( +q=\d+[,|\.]?\d*)? (x=\d+)( +p=\d+[,|\.]?\d*)?( +m=\d+[,|\.]?\d*)?( +sl=\d+[,|\.]?\d*)?( +tp=\d+[,|\.]?\d*)?/gi);
 
     const matchParams = paramsRgx.exec(match[0]);
-
-    console.log(matchParams, match[0]);
      
     if (!matchParams || matchParams.length < 8) {
         Client.ElMarco.sendMessage(
@@ -222,8 +220,6 @@ Client.ElMarco.onText(/\/createfuture .*/gi, authMiddleware(async function(msg, 
             displayPrice = undefined;
         }
     }
-
-    console.log(futureParam);
 
     Client.ElMarco.sendMessage(
         msg.chat.id,

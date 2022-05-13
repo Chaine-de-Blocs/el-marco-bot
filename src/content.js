@@ -191,6 +191,8 @@ ${futuresMsg}
 }
 
 /**
+ * @param {Number|undefined} lastOffer
+ * 
  * @returns {String}
  */
 const renderCreateFutureParamsError = () => {
