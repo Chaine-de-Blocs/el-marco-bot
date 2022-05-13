@@ -4,6 +4,7 @@ const Client = require('./client');
 const Actions = {
     ActionCreateFuture: "createfuture",
     ActionCloseFuture: "closefuture",
+    ActionCloseAllFutures: "closeallfutures",
     ActionCancel: "cancel",
 };
 
@@ -55,6 +56,9 @@ const Params = {
 Client.ElMarco.setMyCommands([{
     command: "start",
     description: "Démarrer El Marco Bot pour faire fortune (en sat bien évidemment)",
+}, {
+    command: "closeallfutures",
+    description: "Fermer tous les Futures en cours",
 }, {
     command: "help",
     description: "Afficher l'aide pour bosser avec El Marrrco",

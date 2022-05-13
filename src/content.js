@@ -82,13 +82,19 @@ Tout ce qui est entre des [] sont des paramètres optionnels.
 
 Pour chaque commande je te donne des précisions en italique, je suis simple et efficace mais on fait de la finance sur LN ! Pas un truc de rigolo
 
-<code>/balance</code> Pour afficher ta balance sur LNMarket
-${renderCloseFutureHelp()}
-${renderCreateFutureHelp()}
-<code>/futures</code> Pour lister tes Futures ouverts
-<code>/help</code> Pour afficher le menu d'aide
-<code>/home</code> Pour revenir à l'accueil
 <code>/start</code> Pour démarrer ou refaire une session avec de nouveaux accès API LNMarket
+<code>/home</code> Pour revenir à l'accueil
+
+<code>/balance</code> Pour afficher ta balance sur LNMarket
+
+<code>/futures</code> Pour lister tes Futures ouverts
+
+${renderCloseFutureHelp()}
+${renderCloseAllFutureHelp()}
+
+${renderCreateFutureHelp()}
+
+<code>/help</code> Pour afficher le menu d'aide
     `;
 }
 
@@ -261,10 +267,30 @@ Le Future <code>${future.pid}</code> a été créé Gringos ! Tu le verras en ch
 /**
  * 
  * @param {String} futureID 
+ * 
  * @returns {String}
  */
 const renderCloseFuture = (futureID) => {
     return `Le Future ${futureID} a été clôturé`;
+}
+
+/**
+ * 
+ * @returns {String}
+ */
+const renderCloseAllFuture = () => {
+    return `Tous les Futures ont été fermés !`
+}
+
+/**
+ * @param {Number} agregatedPL
+ * 
+ * @returns {String}
+ */
+const renderCloseAllFutureConfirm = (agregatedPL) => {
+    return `
+Bon t'es sûr de toi ? On est sur un P/L cumulatif de ${agregatedPL < 0 ? LossEmoji : ProfitEmoji } ${agregatedPL} sats.
+    `;
 }
 
 /**
@@ -287,9 +313,15 @@ const renderCreateFutureHelp = () => {
  * @returns {String}
  */
 const renderCloseFutureHelp = () => {
-    return `
-<code>/closefuture</code> Pour clôturer un Future rien de plus simple tape juste <code>/closefuture</code> et je te guide
-    `;
+    return `<code>/closefuture</code> Pour clôturer un Future rien de plus simple je te guide`;
+}
+
+/**
+ * 
+ * @returns {String}
+ */
+const renderCloseAllFutureHelp = () => {
+    return `<code>/closeallfutures</code> Pour clôturer tous les Futures ouverts.`;
 }
 
 /**
@@ -406,6 +438,8 @@ module.exports = {
     renderStartSuccess,
     renderRequireNewsession,
     renderCmdNotAvailable,
+    renderCloseAllFutureConfirm,
+    renderCloseAllFuture,
     Emoji: {
         FutureEmoji,
         OptionEmoji,
