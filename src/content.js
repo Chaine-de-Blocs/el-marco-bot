@@ -14,6 +14,7 @@ const ProfitEmoji = "🟢";
 const QtyEmoji = "💰";
 const SellEmoji = "📉";
 const StartEmoji = "🎬";
+const WarningEmoji = "⚠️";
 
 /**
  * @returns {String}
@@ -48,6 +49,25 @@ Et enfin transmets les moi par message sous la forme suivante (mets bien un espa
 <code>&lt;Api Key&gt; &lt;Api Secret&gt; &lt;Passphrase&gt;</code>
 
 <i>Pour ta sécurité je ne vais que sauvegarder tes accès API et les chiffrer avec ton <code>passphrase</code>. Ton <code>passphrase</code> sera gardé en session. A tout moment tu pourras supprimer ta session et tes accès avec la commande <code>/removesession</code></i>
+    `;
+}
+
+/**
+ * @returns {String}
+ */
+const renderStartStrategy = () => {
+    return `
+Ah voilà je vais pouvoir bosser, pour tout te dire je m'ennuyais par ici !
+
+Bon j'ai quelques stratégies dans ma besace, je vais te les dire.
+
+${WarningEmoji} <b>Mais avant tout Gringos tu dois savoir un truc. Moi je ferais mon max pour que tu fasses du pogon, mais sache que je suis pas un génie ni un alchimiste qui va te faire de l'or <i>out of nowhere</i>. Tu risques de perdre un peu, mais tu peux aussi gagner si je me débrouille bien eh !</b>
+
+Bon voilà mes stratégies :
+
+<code>random</code> Je fais tout au hasard comme les analyseurs techniques 💪
+
+<i>Ecris moi la stratégie que tu veux que j'active et je m'y mets</i>
     `;
 }
 
@@ -371,7 +391,7 @@ const renderHr = () => {
  */
 const renderSL = (sl) => {
     if (!sl) {
-        return "⚠️ Pas de StopLoss";
+        return `${WarningEmoji} Pas de StopLoss`;
     }
     return `StopLoss à <b>${sl} USD</b>`;
 }
@@ -382,7 +402,7 @@ const renderSL = (sl) => {
  */
 const renderTP = (tp) => {
     if (!tp) {
-        return "⚠️ Pas de TakeProfit";
+        return `${WarningEmoji} Pas de TakeProfit`;
     }
     return `TakeProfit à <b>${tp} USD</b>`;
 }
@@ -452,6 +472,7 @@ module.exports = {
     renderCloseAllFutureConfirm,
     renderCloseAllFuture,
     renderDepositRequest,
+    renderStartStrategy,
     Emoji: {
         FutureEmoji,
         OptionEmoji,
@@ -469,5 +490,6 @@ module.exports = {
         LossEmoji,
         HelpEmoji,
         StartEmoji,
+        WarningEmoji,
     },
 };

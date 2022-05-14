@@ -1,15 +1,16 @@
 require("dotenv").config();
 const LogLevel = require("loglevel");
 const useMdw = require("node-telegram-bot-api-middleware").use;
-
-const Client = require("./client");
-const Content = require("./content");
-const Command = require("./command");
-const KV = require("./kv");
-const DB = require("./db");
-const Auth = require("./auth");
-
 const QRCode = require("qrcode");
+
+const Auth = require("./auth");
+const Client = require("./client");
+const Command = require("./command");
+const Content = require("./content");
+const DB = require("./db");
+const KV = require("./kv");
+const { RandomStrat } = require("./strats");
+const Strat = require("./strats");
 
 DB.Init();
 
@@ -92,6 +93,58 @@ Client.ElMarco.onText(new RegExp(`^${Content.Emoji.PriceEmoji}.*`), (msg) => {
     renderDefaultMenu(msg.chat.id, "J'actualise le dernier prix du marché");
 });
 
+Client.ElMarco.onText(/\/strategy.*/, authMiddleware(function (msg) {
+    const apiCreds = this.getAPICreds();
+    Client.ElMarco.sendMessage(
+        msg.chat.id,
+        Content.renderStartStrategy(),
+        {
+            parse_mode: "HTML",
+            reply_markup: {
+                force_reply: true,
+            },
+        },
+    ).then(sendMsg => {
+        Client.ElMarco.onReplyToMessage(
+            msg.chat.id,
+            sendMsg.message_id,
+            (replyMsg) => {
+                const stratMsg = replyMsg.text.replace(" ", "");
+                if (!Strat.Strategies.includes(stratMsg)) {
+                    displayChatError(new Error("This strategy does not exist"), msg.chat.id);
+                    return;
+                }
+
+                const lnmClient = Client.GetLNMarketClient(
+                    apiCreds.api_client,
+                    apiCreds.api_secret,
+                    apiCreds.passphrase,
+                );
+                
+                // TODO bot ask for options
+                switch(stratMsg) {
+                    case Strat.Strategy.Random:
+                        const s = new Strat.RandomStrat(
+                            msg.chat.id,
+                            {
+                                max_openned_positions: 3,
+                                max_leverage: 25,
+                                max_margin: 10000,
+                                logs_for: Strat.StrategyActions, // logs everything for now
+                            },
+                            lnmClient,
+                        );
+                        s.start();
+                        break;
+                }
+
+                // TODO better message
+                renderDefaultMenu(msg.chat.id, "C'est parti !");
+            }
+        );
+    }).catch(e => displayChatError(e, msg.chat.id));
+}));
+
 Client.ElMarco.onText(/\/balance.*/, (msg) => {
     renderDefaultMenu(msg.chat.id, "Je mets ta balance à jour")
 });
@@ -125,6 +178,8 @@ Client.ElMarco.onText(/\/deposit.*/, authMiddleware(function (msg) {
                         apiCreds.passphrase,
                     ).deposit({ amount: value });
                 
+                // TODO replace buffer usage for sendPhoto which require
+                // stream
                 QRCode.toBuffer(res.paymentRequest)
                     .then(qrcodeBuffer /* Buffer */ => {
                         Client.ElMarco.sendPhoto(
