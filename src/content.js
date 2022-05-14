@@ -99,6 +99,15 @@ ${renderCreateFutureHelp()}
 }
 
 /**
+ * @returns {String}
+ */
+const renderDepositRequest = () => {
+    return `
+Tu veux renflouer les caisses de satoshis ? Très bien dis moi combien tu veux envoyer en <i>sats</i>
+    `
+}
+
+/**
  * 
  * @param {Object} option
  * @param {String} [option.id]
@@ -442,6 +451,7 @@ module.exports = {
     renderCmdNotAvailable,
     renderCloseAllFutureConfirm,
     renderCloseAllFuture,
+    renderDepositRequest,
     Emoji: {
         FutureEmoji,
         OptionEmoji,

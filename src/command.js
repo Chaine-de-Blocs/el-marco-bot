@@ -80,6 +80,9 @@ Client.ElMarco.setMyCommands([{
 }, {
     command: Actions.ActionCloseFuture,
     description: "Fermer un Future en cours",
+}, {
+    command: "deposit",
+    description: "Dépose des fonds dans ton portefeuille LNMarket",
 }]);
 
 /**

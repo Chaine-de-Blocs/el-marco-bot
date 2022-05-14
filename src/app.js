@@ -8,7 +8,8 @@ const Command = require("./command");
 const KV = require("./kv");
 const DB = require("./db");
 const Auth = require("./auth");
-const { Emoji } = require("./content");
+
+const QRCode = require("qrcode");
 
 DB.Init();
 
@@ -91,9 +92,55 @@ Client.ElMarco.onText(new RegExp(`^${Content.Emoji.PriceEmoji}.*`), (msg) => {
     renderDefaultMenu(msg.chat.id, "J'actualise le dernier prix du marché");
 });
 
-Client.ElMarco.onText(/\/balance/, (msg) => {
+Client.ElMarco.onText(/\/balance.*/, (msg) => {
     renderDefaultMenu(msg.chat.id, "Je mets ta balance à jour")
 });
+
+Client.ElMarco.onText(/\/deposit.*/, authMiddleware(function (msg) {
+    const apiCreds = this.getAPICreds();
+    Client.ElMarco.sendMessage(
+        msg.chat.id,
+        Content.renderDepositRequest(),
+        {
+            parse_mode: "HTML",
+            reply_markup: {
+                force_reply: true,
+            }
+        }   
+    ).then(msgSent => {
+        Client.ElMarco.onReplyToMessage(
+            msg.chat.id,
+            msgSent.message_id,
+            async (replyMsg) => {
+                const value = +replyMsg.text;
+                if (typeof value !== "number") {
+                    displayChatError(new Error("provided value is not a number. Please give a number representing sats"), msg.chat.id);
+                    return
+                }
+
+                const res = 
+                    await Client.GetLNMarketClient(
+                        apiCreds.api_client,
+                        apiCreds.api_secret,
+                        apiCreds.passphrase,
+                    ).deposit({ amount: value });
+                
+                QRCode.toBuffer(res.paymentRequest)
+                    .then(qrcodeBuffer /* Buffer */ => {
+                        Client.ElMarco.sendPhoto(
+                            msg.chat.id,
+                            qrcodeBuffer,
+                            {
+                                caption: res.paymentRequest
+                            }
+                        )
+                    })
+                    .catch(e => displayChatError(msg.chat.id, e));
+            }
+        );
+    }).catch(e => displayChatError(e, msg.chat.id));
+
+}));
 
 Client.ElMarco.onText(/\/options/, authMiddleware(function(msg) {
     const apiCreds = this.getAPICreds();
