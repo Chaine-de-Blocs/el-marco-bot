@@ -8,6 +8,7 @@ const Command = require("./command");
 const KV = require("./kv");
 const DB = require("./db");
 const Auth = require("./auth");
+const { Emoji } = require("./content");
 
 DB.Init();
 
@@ -85,6 +86,9 @@ Client.ElMarco.onText(/\/home/, async (msg) => {
 });
 Client.ElMarco.onText(new RegExp(`^(\/help)( )*$|^${Content.Emoji.HelpEmoji}.*`), async (msg) => {
     renderDefaultMenu(msg.chat.id, Content.renderHelp());
+});
+Client.ElMarco.onText(new RegExp(`^${Content.Emoji.PriceEmoji}.*`), (msg) => {
+    renderDefaultMenu(msg.chat.id, "J'actualise le dernier prix du marché");
 });
 
 Client.ElMarco.onText(/\/balance/, (msg) => {
@@ -459,11 +463,15 @@ Client.ElMarco.on("callback_query", async (query) => {
 });
 
 const renderDefaultMenu = async (chatID, message) => {
-    let balance;
+    let balance, lastOffer;
     try {
         const apiCreds = await Auth.fetchAPICreds(chatID);
-        const lnmUserInfo = await Client.GetLNMarketClient(apiCreds.api_client, apiCreds.api_secret, apiCreds.passphrase).getUser();
+        const lnClient = Client.GetLNMarketClient(apiCreds.api_client, apiCreds.api_secret, apiCreds.passphrase);
+        const lnmUserInfo = await lnClient.getUser();
+        const futureTicker = await lnClient.futuresGetTicker();
+
         balance = lnmUserInfo.balance;
+        lastOffer = futureTicker.offer;
     } catch(e) {
         LogLevel.trace("failed to fetch balance");
     }
@@ -476,6 +484,10 @@ const renderDefaultMenu = async (chatID, message) => {
         [balanceBtn],
         [`${Content.Emoji.FutureEmoji} Créer un Future`, `${Content.Emoji.OptionEmoji} Créer une Option`, `${Content.Emoji.HelpEmoji} Aide`]
     ];
+
+    if (typeof lastOffer !== "undefined") {
+        menu.push([`${Content.Emoji.PriceEmoji} Dernier prix à ${lastOffer}USD`]);
+    }
 
     Client.ElMarco.sendMessage(chatID, message, {
         parse_mode: "HTML",
