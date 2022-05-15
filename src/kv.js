@@ -40,6 +40,10 @@ const get = async (key) => {
         .get(key)
         .string();
 
+    if (value === null) {
+        return "";
+    }
+
     return Buffer.from(value, "base64").toString("ascii");
 }
 

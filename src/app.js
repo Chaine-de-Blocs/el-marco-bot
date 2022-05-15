@@ -9,8 +9,10 @@ const Command = require("./command");
 const Content = require("./content");
 const DB = require("./db");
 const KV = require("./kv");
-const { RandomStrat } = require("./strats");
+const { StrategyProcess } = require("./strats");
 const Strat = require("./strats");
+
+const strategy = new StrategyProcess();
 
 DB.Init();
 
@@ -121,11 +123,13 @@ Client.ElMarco.onText(/\/strategy.*/, authMiddleware(function (msg) {
                     apiCreds.passphrase,
                 );
                 
-                // TODO bot ask for options
+                // TODO check all options
+                // stop execution if required options are missing
                 switch(stratMsg) {
                     case Strat.Strategy.Random:
-                        const s = new Strat.RandomStrat(
+                        strategy.createUserStrategy(
                             msg.chat.id,
+                            Strat.Strategy.Random,
                             {
                                 max_openned_positions: 3,
                                 max_leverage: 25,
@@ -134,7 +138,6 @@ Client.ElMarco.onText(/\/strategy.*/, authMiddleware(function (msg) {
                             },
                             lnmClient,
                         );
-                        s.start();
                         break;
                 }
 
