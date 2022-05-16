@@ -86,6 +86,9 @@ Client.ElMarco.setMyCommands([{
 }, {
     command: "strategy",
     description: "Activer mes trades automatiques (je ferais de mon mieux mais je peux rien t'assurer)",
+}, {
+    command: "stopstrategy",
+    description: "Stopper les trades automatiques en cours (attention ça ne les clôture pas)",
 }]);
 
 /**

@@ -75,6 +75,28 @@ Bon voilà mes stratégies :
  * 
  * @returns {String}
  */
+const renderStategyStop = () => {
+    return `
+La stratégie automatique a été arrêtée, voilà ses résultats :
+${renderStartegyStats()}
+    `;
+}
+
+/**
+ * 
+ * @returns {String}
+ */
+const renderStartegyStats = () => {
+    // TODO
+    return `
+stats
+    `;
+}
+
+/**
+ * 
+ * @returns {String}
+ */
 const renderStartSuccess = () => {
     return `
 On est bons ! Tes accès sont bien valides. Aucune inquiétude j'ai en mémoire tes accès mais je les ai chiffré eheh ! Ton <code>passphrase</code> est la clé de chiffrement que je garde en session uniquement.
@@ -473,6 +495,9 @@ module.exports = {
     renderCloseAllFuture,
     renderDepositRequest,
     renderStartStrategy,
+    renderPL,
+    renderStategyStop,
+    renderStartegyStats,
     Emoji: {
         FutureEmoji,
         OptionEmoji,

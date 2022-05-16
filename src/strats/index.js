@@ -1,19 +1,10 @@
-/**
- * How will we make the strategies
- * 
- * 1. One strategie per user
- *   1.1 Store active strategy in KV (deleted means inactive)
- *   1.3 Bunch of options for strategies (how many positions it can open, etc.)
- * 2. Store positions openned by the strategy in DB
- *   2.1 Mark the positions when closed with PL (for stats)
- * 
- */
-
 const { Worker } = require("node:worker_threads");
 const path = require('node:path');
 const DB = require("../db");
 
 const Client = require("../client");
+
+const Content = require("./content");
 
 const Strategy = {
     Random: "random",
@@ -22,11 +13,12 @@ const Strategy = {
 const StrategyAction = {
     CreateFuturePosition: "create_future_pos",
     CloseFuturePosition: "close_future_pos",
+    CloseFuturePositionFail: "close_future_pos_fail",
 };
 
 const StrategyProcess = class {
 
-    workers = new Map();
+    workers = new Map(); /* Map<String, String> */
 
     /**
      * Main thread handling all data
@@ -50,7 +42,7 @@ const StrategyProcess = class {
 
         worker.on("message", (message) => {
             if (opts.logs_for.includes(message.action)) {
-                this.updateAction(userID, message.action, message.data);
+                this.updateAction(userID, message.action, message.data, strategy);
             }
 
             switch(message.action) {
@@ -68,6 +60,9 @@ const StrategyProcess = class {
                         strategy,
                     );
                     break;
+                case StrategyAction.CloseFuturePositionFail:
+                    // nothing to do here I guess
+                    break;
             }
         });
 
@@ -75,23 +70,27 @@ const StrategyProcess = class {
             console.log("worker error", message);
         });
 
-        // TODO send message
-        // worker.postMessage(data);
-
         this.workers.set(userID, worker);
-
-        // start the strategy
-        // TODO save in KV
     }
 
     /**
      * 
      * @param {String} userID 
+     * 
+     * @throws {Error}
      */
-    killUserStrategy(userID) {
-        console.log("stop");
-        // stop the strategy
-        // TODO delete from KV
+    stopUserStrategy(userID) {
+        if (!this.workers.has(userID)) {
+            throw new Error("User has no running strategies");
+        }
+
+        const worker = this.workers.get(userID);
+
+        worker.postMessage({
+            action: "stop",
+        });
+
+        this.workers.delete(userID);
     }
 
     /**
@@ -99,20 +98,35 @@ const StrategyProcess = class {
      * 
      * @param {String} logType 
      * @param {Object} params 
+     * @param {String} strategy
      */
-    updateAction(chatID, logType, params) {
-        // TODO content for those messages
+    updateAction(chatID, logType, data, strategy) {
         switch(logType) {
             case StrategyAction.CreateFuturePosition:
                 Client.ElMarco.sendMessage(
                     chatID,
-                    JSON.stringify(params),
+                    Content.renderCreateFuture(data, strategy),
+                    {
+                        parse_mode: "HTML",
+                    },
                 );
                 break;
             case StrategyAction.CloseFuturePosition:
                 Client.ElMarco.sendMessage(
                     chatID,
-                    JSON.stringify(params),
+                    Content.renderCloseFuture(data, strategy),
+                    {
+                        parse_mode: "HTML",
+                    },
+                );
+                break;
+            case StrategyAction.CloseFuturePositionFail:
+                Client.ElMarco.sendMessage(
+                    chatID,
+                    Content.renderCloseFutureFail(data, strategy),
+                    {
+                        parse_mode: "HTML",
+                    },
                 );
                 break;
         }
@@ -129,5 +143,6 @@ module.exports = {
     StrategyActions: [
         StrategyAction.CloseFuturePosition,
         StrategyAction.CreateFuturePosition,
+        StrategyAction.CloseFuturePositionFail,
     ],
 };

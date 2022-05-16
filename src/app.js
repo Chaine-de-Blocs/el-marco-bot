@@ -148,6 +148,12 @@ Client.ElMarco.onText(/\/strategy.*/, authMiddleware(function (msg) {
     }).catch(e => displayChatError(e, msg.chat.id));
 }));
 
+Client.ElMarco.onText(/\/stopstrategy.*/, (msg) => {
+    strategy.stopUserStrategy(msg.chat.id);
+    // TODO fetch stats
+    renderDefaultMenu(msg.chat.id, Content.renderStategyStop());
+});
+
 Client.ElMarco.onText(/\/balance.*/, (msg) => {
     renderDefaultMenu(msg.chat.id, "Je mets ta balance à jour")
 });
