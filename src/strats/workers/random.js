@@ -9,6 +9,7 @@ const Messages = {
 
 const options = workerData.opts;
 const lnmClient = new LNMarketsRest(workerData.lnmClient);
+const callFrequencyInMs = 5000;
 
 let createdPositions = [];
 let toRecursiveCall;
@@ -87,13 +88,11 @@ const randomStrat = async () => {
     }
 
     if(!hasStopped) {
-        // toCall = setTimeout(randomStrat, 5 * 60 * 1000);
-        // 1 sec for testing
-        toRecursiveCall = setTimeout(randomStrat, 5000);
+        toRecursiveCall = setTimeout(randomStrat, callFrequencyInMs);
     }
 }
 
-randomStrat();
+toRecursiveCall = setTimeout(randomStrat, callFrequencyInMs);
 
 parentPort.on("message", (data) => {
     switch(data.action) {

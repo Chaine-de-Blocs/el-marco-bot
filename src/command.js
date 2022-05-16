@@ -6,6 +6,7 @@ const Actions = {
     ActionCloseFuture: "closefuture",
     ActionCloseAllFutures: "closeallfutures",
     ActionCancel: "cancel",
+    ActionStartStrategy: "startstrategy",
 };
 
 const Params = {

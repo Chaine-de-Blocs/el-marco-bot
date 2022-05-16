@@ -10,4 +10,7 @@
 - [x] Clôturer une position Future
 - [x] Clôturer tous les Future
 - [ ] Notification temps réel clotûre position (voire margin low)
-- [ ] Bot automatique (stratégie random) <----- let's do this one
+- [x] Bot automatique (stratégie random)
+  - [ ] Uniquement une strategie par utilisateur
+  - [ ] Stats strategie
+  - [ ] Handle erreurs HTTP avec max error + fail sinon depasse

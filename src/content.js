@@ -1,4 +1,5 @@
 const BalanceEmoji = "🌟";
+const BotEmoji = "🤖";
 const BuyEmoji = "📈";
 const CheckEmoji = "✅";
 const ExpEmoji = "🕐";
@@ -65,7 +66,13 @@ ${WarningEmoji} <b>Mais avant tout Gringos tu dois savoir un truc. Moi je ferais
 
 Bon voilà mes stratégies :
 
-<code>random</code> Je fais tout au hasard comme les analyseurs techniques 💪
+<code>random</code> <code>[max_openned_positions]</code> <code>[max_leverage]</code> <code>[max_margin]</code> Je fais tout au hasard comme les analyseurs techniques 💪
+
+Sépare les options entre [] par des valeurs :
+
+<code>[max_openned_positions]</code> Chiffre qui représente le quantité max de positions que je peux ouvrir en même temps
+<code>[max_leverage]</code> Levier maximum que je pourrais mettre
+<code>[max_margin]</code> La marge maximum que je pourrais créer en sats
 
 <i>Ecris moi la stratégie que tu veux que j'active et je m'y mets</i>
     `;
@@ -79,6 +86,42 @@ const renderStategyStop = () => {
     return `
 La stratégie automatique a été arrêtée, voilà ses résultats :
 ${renderStartegyStats()}
+    `;
+}
+
+/**
+ * 
+ * @param {String} strat 
+ * @param {Object} options 
+ * @param {Number} [options.max_openned_positions]
+ * @param {Number} [options.max_leverage]
+ * @param {Number} [options.max_margin]
+ * 
+ * @returns {String}
+ */
+const renderStartegyPreview = (strat, options) => {
+    return `
+Tu veux lancer la stratégie ${strat} ? C'est une bonne idée.
+
+Avant de lancer la machine de guerre jette un oeil sur les configurations c'est important :
+
+${FutureEmoji} Je laisserai ouvert un maximum de <b>${options.max_openned_positions}</b> Future
+${LeverageEmoji} Je ferai des leviers qui ne dépasseront pas <u>x${options.max_leverage}</u>
+${MarginEmoji} Je ferai des marges au maximum de <b>${options.max_margin} sats</b>
+
+Ca te va Gringos ?
+    `;
+}
+
+/**
+ * 
+ * @param {String} strat 
+ * 
+ * @returns {String}
+ */
+const renderStrategyStarted = (strat) => {
+    return `
+🔥 OH ! Du job pour El Marrrco ! Allez je m'y mets, je lance la stratégie ${strat}
     `;
 }
 
@@ -498,6 +541,8 @@ module.exports = {
     renderPL,
     renderStategyStop,
     renderStartegyStats,
+    renderStartegyPreview,
+    renderStrategyStarted,
     Emoji: {
         FutureEmoji,
         OptionEmoji,
@@ -513,6 +558,7 @@ module.exports = {
         BalanceEmoji,
         ProfitEmoji,
         LossEmoji,
+        BotEmoji,
         HelpEmoji,
         StartEmoji,
         WarningEmoji,

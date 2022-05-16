@@ -9,7 +9,7 @@ const Command = require("./command");
 const Content = require("./content");
 const DB = require("./db");
 const KV = require("./kv");
-const { StrategyProcess } = require("./strats");
+const { StrategyProcess, Strategies } = require("./strats");
 const Strat = require("./strats");
 
 const strategy = new StrategyProcess();
@@ -110,10 +110,47 @@ Client.ElMarco.onText(/\/strategy.*/, authMiddleware(function (msg) {
         Client.ElMarco.onReplyToMessage(
             msg.chat.id,
             sendMsg.message_id,
-            (replyMsg) => {
-                const stratMsg = replyMsg.text.replace(" ", "");
-                if (!Strat.Strategies.includes(stratMsg)) {
-                    displayChatError(new Error("This strategy does not exist"), msg.chat.id);
+            async (replyMsg) => {
+                const matchParams = /(random) ?(\d*)? ?(\d*)? ?(\d*)/ig.exec(replyMsg.text);
+
+                let strat;
+                let options = {
+                    max_openned_positions: 3,
+                    max_leverage: 25,
+                    max_margin: 10000,
+                    logs_for: Strat.StrategyActions, // logs everything for now
+                };
+
+                if (matchParams.length >= 5) {
+                    strat = matchParams[1];
+                    options.max_openned_positions = matchParams[2]
+                        ? +matchParams[2].replace(" ", "")
+                        : options.max_openned_positions;
+                    options.max_leverage = matchParams[3]
+                        ? +matchParams[3].replace(" ", "")
+                        : options.max_leverage;
+                    options.max_margin = matchParams[4]
+                        ? +matchParams[4].replace(" ", "")
+                        : options.max_margin;
+                }
+
+                if (!Strategies.includes(strat)) {
+                    displayChatError(new Error(`Strategy ${strat} doesn't exist`), msg.chat.id);
+                    return;
+                }
+
+                if (options.max_openned_positions > 6) {
+                    displayChatError(new Error("[max_openned_positions] can't be greater than 6"), msg.chat.id);
+                    return;
+                }
+
+                if (options.max_leverage > 100) {
+                    displayChatError(new Error("[max_leverage] can't be greater than 100"), msg.chat.id);
+                    return;
+                }
+
+                if (options.max_margin < 776 || options.max_margin > 1000000) {
+                    displayChatError(new Error("[max_margin] can't be smaller than 776 and greater than 1000000"), msg.chat.id);
                     return;
                 }
 
@@ -122,27 +159,38 @@ Client.ElMarco.onText(/\/strategy.*/, authMiddleware(function (msg) {
                     apiCreds.api_secret,
                     apiCreds.passphrase,
                 );
-                
-                // TODO check all options
-                // stop execution if required options are missing
-                switch(stratMsg) {
-                    case Strat.Strategy.Random:
-                        strategy.createUserStrategy(
-                            msg.chat.id,
-                            Strat.Strategy.Random,
-                            {
-                                max_openned_positions: 3,
-                                max_leverage: 25,
-                                max_margin: 10000,
-                                logs_for: Strat.StrategyActions, // logs everything for now
-                            },
-                            lnmClient,
-                        );
-                        break;
-                }
 
-                // TODO better message
-                renderDefaultMenu(msg.chat.id, "C'est parti !");
+                const payload = JSON.stringify({
+                    strat,
+                    options,
+                });
+
+                let id = "";
+                try {
+                    id = await KV.store(payload);
+                } catch(e) {
+                    displayChatError(new Error("Server prob yiks"), msg.chat.id)
+                    return
+                }
+                
+                Client.ElMarco.sendMessage(
+                    msg.chat.id,
+                    Content.renderStartegyPreview(strat, options),
+                    {
+                        parse_mode: "HTML",
+                        reply_markup: {
+                            remove_keyboard: true,
+                            inline_keyboard: [[{
+                                text: "Lance la stratégie",
+                                callback_data: `${Command.Actions.ActionStartStrategy};${id}`,
+                            }, {
+                                text: "Nope, on annule",
+                                callback_data: `${Command.Actions.ActionCreateFuture};${Command.Actions.ActionCancel}`,
+                            }]],
+                            one_time_keyboard: true,
+                        }
+                    }
+                );
             }
         );
     }).catch(e => displayChatError(e, msg.chat.id));
@@ -316,7 +364,7 @@ Client.ElMarco.onText(/\/createfuture .*/gi, authMiddleware(async function(msg, 
     try {
         id = await KV.store(payload);
     } catch(e) {
-        displayChatError("problème de serveur", msg.chat.id)
+        displayChatError(new Error("Server prob yiks"), msg.chat.id)
         return
     }
 
@@ -564,6 +612,42 @@ Client.ElMarco.on("callback_query", async (query) => {
                     renderDefaultMenu(query.message.chat.id, Content.renderNeedMe())
                 );
             break;
+        case Command.Actions.ActionStartStrategy:
+            if (data[1] === Command.Actions.ActionCancel) {
+                Client.ElMarco.answerCallbackQuery(query.id, {
+                    text: "Pas de jobs pour moi, ye compris...",
+                });
+                Client.ElMarco.deleteMessage(query.message.chat.id, query.message.message_id);
+                renderDefaultMenu(query.message.chat.id, Content.renderNeedMe())
+                break;
+            }
+
+            KV.get(data[1])
+                .then(async value => {
+                    const params = JSON.parse(value);
+
+                    strategy.createUserStrategy(
+                        query.message.chat.id,
+                        params.strat,
+                        params.options,
+                        lnClient,
+                    );
+
+                    Client.ElMarco.answerCallbackQuery(query.id);
+                    Client.ElMarco.deleteMessage(query.message.chat.id, query.message.message_id);
+                    Client.ElMarco.sendMessage(
+                        query.message.chat.id,
+                        Content.renderStrategyStarted(params.strat),
+                        {
+                            parse_mode: "HTML",
+                        }
+                    );
+                })
+                .catch((e) => displayChatError(`Error create strategy ${e}`, query.message.chat.id))
+                .finally(() =>
+                    renderDefaultMenu(query.message.chat.id, Content.renderNeedMe())
+                );
+                break;
         default:
             LogLevel.warn(`unknown_cb_action: [${data[0]}]`);
             Client.ElMarco.answerCallbackQuery(query.id, {

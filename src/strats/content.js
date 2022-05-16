@@ -7,7 +7,7 @@ const Content = require("../content");
  * @returns {String}
  */
 const renderStartHeader = (strat) => {
-    return `[Stratégie ${strat}]`;
+    return `${Content.Emoji.BotEmoji} [Stratégie <b>${strat}</b>]`;
 }
 
 /**
