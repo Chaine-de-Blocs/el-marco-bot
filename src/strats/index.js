@@ -1,4 +1,6 @@
+const LogLevel = require("loglevel");
 const { Worker } = require("node:worker_threads");
+
 const path = require('node:path');
 const DB = require("../db");
 
@@ -13,6 +15,7 @@ const Strategy = {
 const StrategyAction = {
     CreateFuturePosition: "create_future_pos",
     CloseFuturePosition: "close_future_pos",
+    CreateFuturePositionFail: "create_future_pos_fail",
     CloseFuturePositionFail: "close_future_pos_fail",
 };
 
@@ -60,6 +63,7 @@ const StrategyProcess = class {
                         strategy,
                     );
                     break;
+                case StrategyAction.CreateFuturePositionFail:
                 case StrategyAction.CloseFuturePositionFail:
                     // nothing to do here I guess
                     break;
@@ -67,7 +71,7 @@ const StrategyProcess = class {
         });
 
         worker.on("error", (message) => {
-            console.log("worker error", message);
+            LogLevel.trace(`strat_worker=[${strategy}, error=${message}]`)
         });
 
         this.workers.set(userID, worker);
@@ -120,6 +124,15 @@ const StrategyProcess = class {
                     },
                 );
                 break;
+            case StrategyAction.CreateFuturePositionFail:
+                Client.ElMarco.sendMessage(
+                    chatID,
+                    Content.renderCreateFutureFail(data.params, data.error, strategy),
+                    {
+                        parse_mode: "HTML",
+                    },
+                );
+                break;
             case StrategyAction.CloseFuturePositionFail:
                 Client.ElMarco.sendMessage(
                     chatID,
@@ -143,6 +156,7 @@ module.exports = {
     StrategyActions: [
         StrategyAction.CloseFuturePosition,
         StrategyAction.CreateFuturePosition,
+        StrategyAction.CreateFuturePositionFail,
         StrategyAction.CloseFuturePositionFail,
     ],
 };

@@ -54,12 +54,39 @@ const renderCloseFutureFail = (pid, strat) => {
     return `
 ${renderStartHeader(strat)} Woops j'ai pas réussi à clôturer le Future <code>${pid}</code>.
 
-Hey Gringos je vais le retirer de ma stratégie et le laisser de côter, si tu veux le clôturer tape juste <code>/closefuture</code>
+Hey Gringos je vais le retirer de ma stratégie et le laisser de côté, si tu veux le clôturer tape juste <code>/closefuture</code>
     `;
 }
+
+/**
+ * 
+ * @param {Object} params
+ * @param {Number} [params.margin]
+ * @param {Number} [params.leverage]
+ * @param {String} [params.side]
+ * @param {String} [params.type]
+ * @param {Error} err
+ * @param {String} strat
+ * 
+ * @returns {String}
+ */
+const renderCreateFutureFail = (params, err, strat) => {
+    return `
+${renderStartHeader(strat)} J'ai échoué lors de la création d'un Future
+
+👉 C'est pas forcément un gros soucis, je te laisse voir ce qui va pas si ça se répète :
+
+Future ${Content.renderSide(params.side)}
+${Content.Emoji.MarginEmoji} Marge de <b>${params.margin}</b>
+${Content.Emoji.LeverageEmoji} Levier de x${params.leverage}
+
+LNMarket m'a retourné cette erreur : ${err}
+    `;
+};
 
 module.exports = {
     renderCreateFuture,
     renderCloseFuture,
     renderCloseFutureFail,
+    renderCreateFutureFail,
 }

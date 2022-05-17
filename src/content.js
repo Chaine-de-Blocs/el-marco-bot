@@ -121,7 +121,7 @@ Ca te va Gringos ?
  */
 const renderStrategyStarted = (strat) => {
     return `
-🔥 OH ! Du job pour El Marrrco ! Allez je m'y mets, je lance la stratégie ${strat}
+🔥 OH ! Du job pour El Marrrco ! Allez je m'y mets, je lance la stratégie <code>${strat}</code>
     `;
 }
 
@@ -539,6 +539,7 @@ module.exports = {
     renderDepositRequest,
     renderStartStrategy,
     renderPL,
+    renderSide,
     renderStategyStop,
     renderStartegyStats,
     renderStartegyPreview,

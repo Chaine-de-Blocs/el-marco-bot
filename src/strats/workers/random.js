@@ -3,6 +3,7 @@ const { LNMarketsRest } = require("@ln-markets/api");
 
 const Messages = {
     PosCreated: "create_future_pos",
+    PosCreateFail: "create_future_pos_fail",
     PosClosed: "close_future_pos",
     PosCloseFail: "close_future_pos_fail",
 };
@@ -82,8 +83,13 @@ const randomStrat = async () => {
                 data: createPosRes.position,
             });
         } catch(e) {
-            // TODO send error to parent (how?)
-            console.log(e);
+            parentPort.postMessage({
+                action: Messages.PosCreateFail,
+                data: {
+                    params,
+                    error: e,
+                },
+            });
         }
     }
 
@@ -97,7 +103,6 @@ toRecursiveCall = setTimeout(randomStrat, callFrequencyInMs);
 parentPort.on("message", (data) => {
     switch(data.action) {
         case "stop":
-            console.log("stopped");
             clearTimeout(toRecursiveCall);
             hasStopped = true;
             break;
