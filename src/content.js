@@ -80,12 +80,22 @@ Sépare les options entre [] par des valeurs :
 
 /**
  * 
+ * @param {Object} stats
+ * @param {Number} [stats.total_pl]
+ * @param {Number} [stats.total_closed]
+ * @param {Number} [stats.avg_margin]
+ * @param {Number} [stats.avg_price]
+ * @param {Number} [stats.avg_leverage]
+ * @param {Number} [stats.avg_pl]
+ * @param {Number} [stats.avg_exit_price]
+
  * @returns {String}
  */
-const renderStategyStop = () => {
+const renderStategyStop = (stats) => {
     return `
 La stratégie automatique a été arrêtée, voilà ses résultats :
-${renderStartegyStats()}
+
+${renderStartegyStats(stats)}
     `;
 }
 
@@ -126,13 +136,24 @@ const renderStrategyStarted = (strat) => {
 }
 
 /**
- * 
+ * @param {Object} stats
+ * @param {Number} [stats.total_pl]
+ * @param {Number} [stats.total_closed]
+ * @param {Number} [stats.avg_margin]
+ * @param {Number} [stats.avg_price]
+ * @param {Number} [stats.avg_leverage]
+ * @param {Number} [stats.avg_pl]
+ * @param {Number} [stats.avg_exit_price]
  * @returns {String}
  */
-const renderStartegyStats = () => {
-    // TODO
+const renderStartegyStats = (stats) => {
     return `
-stats
+PL Final ${renderPL(stats.total_pl)} pour un PL moyen de <b>${stats.avg_pl.toFixed(2)} sats</b>
+${MarginEmoji} Moyenne de margin <b>${stats.avg_margin.toFixed(2)} sats</b>
+${PriceEmoji} Moyenne de prix d'entré <b>${stats.avg_price.toFixed(2)} USD</b>
+${LeverageEmoji} Moyenne de levier <b>x${stats.avg_leverage.toFixed(0)}</b>
+
+J'ai clôturé ${stats.total_closed} positions.
     `;
 }
 

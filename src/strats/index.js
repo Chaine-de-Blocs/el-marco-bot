@@ -58,9 +58,7 @@ const StrategyProcess = class {
                     break;
                 case StrategyAction.CloseFuturePosition:
                     DB.UpdateCloseStrategyBotPosition(
-                        userID,
                         message.data,
-                        strategy,
                     );
                     break;
                 case StrategyAction.CreateFuturePositionFail:

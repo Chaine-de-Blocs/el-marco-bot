@@ -62,7 +62,7 @@ Client.ElMarco.onText(new RegExp(`^(\/start)( )*$|^${Content.Emoji.StartEmoji}.*
                 .then(async _ => {
                     await DB.SaveAPICreds(msg.chat.id, clientId, clientSecret, passphrase);
 
-                    // TODO allow user to define session
+                    // TODO allow user to define session expiration
                     await KV.store(passphrase, msg.chat.id);
 
                     Client.ElMarco.sendMessage(
@@ -95,8 +95,7 @@ Client.ElMarco.onText(new RegExp(`^${Content.Emoji.PriceEmoji}.*`), (msg) => {
     renderDefaultMenu(msg.chat.id, "J'actualise le dernier prix du marché");
 });
 
-Client.ElMarco.onText(/\/strategy.*/, authMiddleware(function (msg) {
-    const apiCreds = this.getAPICreds();
+Client.ElMarco.onText(/\/strategy.*/, function (msg) {
     Client.ElMarco.sendMessage(
         msg.chat.id,
         Content.renderStartStrategy(),
@@ -154,12 +153,6 @@ Client.ElMarco.onText(/\/strategy.*/, authMiddleware(function (msg) {
                     return;
                 }
 
-                const lnmClient = Client.GetLNMarketClient(
-                    apiCreds.api_client,
-                    apiCreds.api_secret,
-                    apiCreds.passphrase,
-                );
-
                 const payload = JSON.stringify({
                     strat,
                     options,
@@ -194,12 +187,55 @@ Client.ElMarco.onText(/\/strategy.*/, authMiddleware(function (msg) {
             }
         );
     }).catch(e => displayChatError(e, msg.chat.id));
-}));
+});
 
-Client.ElMarco.onText(/\/stopstrategy.*/, (msg) => {
-    strategy.stopUserStrategy(msg.chat.id);
-    // TODO fetch stats
-    renderDefaultMenu(msg.chat.id, Content.renderStategyStop());
+Client.ElMarco.onText(/\/stopstrategy.*/, async (msg) => {
+    try {
+        strategy.stopUserStrategy(msg.chat.id);
+        const positions = await DB.ListStrategyPositions(msg.chat.id);
+        const stats = {
+            total_pl: 0,
+            total_closed: 0,
+            avg_margin: 0,
+            avg_price: 0,
+            avg_leverage: 0,
+            avg_pl: 0,
+            avg_exit_price: 0,
+        }
+
+        let totalPosition = 0;
+        let totalPrice = 0;
+        let totalMargin = 0;
+        let totalLeverage = 0;
+        let totalExitPrice = 0;
+
+        while((pos = await positions.next())) {
+            totalPosition++;
+            stats.total_pl += pos.pl;
+            if (pos.closed) {
+                stats.total_closed += 1;
+            }
+            totalPrice += pos.price;
+            totalMargin += pos.margin;
+            totalLeverage += pos.leverage;
+            totalExitPrice += pos.exit_price;
+        }
+
+        if (totalPosition > 0) {
+            stats.avg_pl = stats.total_pl / totalPosition;
+            stats.avg_price = totalPrice / totalPosition;
+            stats.avg_margin = totalMargin / totalPosition;
+            stats.avg_leverage = totalLeverage / totalPosition;
+            stats.avg_exit_price = totalExitPrice / (totalPosition - stats.total_closed);
+        }
+
+        renderDefaultMenu(
+            msg.chat.id,
+            Content.renderStategyStop(stats),
+        );
+    } catch (e) {
+        displayChatError(e, msg.chat.id);
+    }
 });
 
 Client.ElMarco.onText(/\/balance.*/, (msg) => {

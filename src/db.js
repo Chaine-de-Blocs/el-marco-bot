@@ -1,4 +1,5 @@
 const { Mongo } = require("./client");
+const uuid = require("uuid");
 const Utils = require("./utils");
 
 const CollectionCreds = "api_creds";
@@ -79,15 +80,15 @@ const SaveAPICreds = async (chatID, clientId, clientSecret, passphrase) => {
  * @param {String|Null} [position.parent_type]
  * @param {String|Null} [position.option_trade]
  * @param {String} strat
- * 
- * @returns {Promise<any>}
+ *
+ * @returns {Promise<void>}
  */
-const InsertStrategyBotPosition = async (chatID, position, strat) => {
-    return getDB()
+const InsertStrategyBotPosition = (chatID, position, strat) => {
+    getDB()
         .collection(CollectionStrategyPositions)
         .insertOne({
             _id: position.pid,
-            userID: chatID,
+            user_id: chatID,
             pl: position.pl,
             strat,
             closed: false,
@@ -117,6 +118,24 @@ const UpdateCloseStrategyBotPosition = async (position) => {
                 closed: position.closed,
                 exit_price: position.exit_price,
                 pl: position.pl,
+            }
+        });
+}
+
+/**
+ * 
+ * @param {String} chatID
+ * 
+ * @returns {Promise<Object>}
+ */
+const ListStrategyPositions = async (chatID) => {
+    return getDB()
+        .collection(CollectionStrategyPositions)
+        .find({
+            user_id: chatID,
+        }, {
+            projection: {
+                user_id: 0,
             }
         });
 }
@@ -165,4 +184,5 @@ module.exports = {
     GetAPICreds,
     InsertStrategyBotPosition,
     UpdateCloseStrategyBotPosition,
+    ListStrategyPositions,
 };

@@ -12,5 +12,5 @@
 - [ ] Notification temps réel clotûre position (voire margin low)
 - [x] Bot automatique (stratégie random)
   - [ ] Uniquement une strategie par utilisateur
-  - [ ] Stats strategie
-  - [ ] Handle erreurs HTTP avec max error + fail sinon depasse
+  - [x] Stats strategie
+  - [x] Handle erreurs HTTP avec max error + fail sinon depasse
