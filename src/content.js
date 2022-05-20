@@ -158,10 +158,10 @@ const renderStrategyStarted = (strat) => {
  */
 const renderStartegyStats = (stats) => {
     return `
-PL Final ${renderPL(stats.total_pl)} pour un PL moyen de <b>${stats.avg_pl.toFixed(2)} sats</b>
-${MarginEmoji} Moyenne de margin <b>${stats.avg_margin.toFixed(2)} sats</b>
+PL Total ${renderPL(stats.total_pl)} pour un PL moyen de <b>${stats.avg_pl.toFixed(2)} sat</b>
+${MarginEmoji} Moyenne de margin <b>${stats.avg_margin.toFixed(2)} sat</b>
 ${PriceEmoji} Moyenne de prix d'entré <b>${stats.avg_price.toFixed(2)} USD</b>
-${LeverageEmoji} Moyenne de levier <b>x${stats.avg_leverage.toFixed(0)}</b>
+${LeverageEmoji} Moyenne de levier <u>x${stats.avg_leverage.toFixed(0)}</u>
 
 J'ai clôturé ${stats.total_closed} positions.
     `;
@@ -198,10 +198,20 @@ Tout ce qui est entre des [] sont des paramètres optionnels.
 
 Pour chaque commande je te donne des précisions en italique, je suis simple et efficace mais on fait de la finance sur LN ! Pas un truc de rigolo
 
+🌀 <b>Général</b> 🌀 
+
 <code>/start</code> Pour démarrer ou refaire une session avec de nouveaux accès API LNMarket
 <code>/home</code> Pour revenir à l'accueil
+<code>/help</code> Pour afficher le menu d'aide
+
+
+🌀 <b>Gestion de compte LNMarket</b> 🌀 
 
 <code>/balance</code> Pour afficher ta balance sur LNMarket
+<code>/deposit</code> Pour déposer des fonds dans ton wallet LNMarket
+
+
+🌀 <b>Trading manuel</b> 🌀 
 
 <code>/futures</code> Pour lister tes Futures ouverts
 
@@ -210,7 +220,12 @@ ${renderCloseAllFutureHelp()}
 
 ${renderCreateFutureHelp()}
 
-<code>/help</code> Pour afficher le menu d'aide
+
+🌀 <b>Trading automatique (stratégies)</b> 🌀
+
+<code>/strategy</code> Pour démarrer une stratégie automatique. Lance la commande et je te guide.
+<code>/stopstrategy</code> Pour stopper la stratégie en cours, je te ferais un résumé des résultats.
+<code>/strategystats</code> Pour afficher les stats de la stratégie en cours.
     `;
 }
 
@@ -331,7 +346,7 @@ Pour t'inspirer voilà quelques commandes pour créer un Future :
 <code>/createfuture l q=100 x=50 p=35333 sl=35300</code>
 
 <code>/createfuture s q=100 x=50 sl=36000 tp=38000</code>
-    `
+    `;
 }
 
 /**
@@ -440,8 +455,7 @@ const renderCreateFutureHelp = () => {
 <code>m</code> c'est pour la margin
 <b>Tu dois au moins préciser <code>q</code> ou <code>m</code> pour créer le Future</b>
 
-<code>p</code> c'est pour préciser le limit price, si tu ne le mets pas alors je vais créer un order au prix de marché.
-</i>`; 
+<code>p</code> c'est pour préciser le limit price, si tu ne le mets pas alors je vais créer un order au prix de marché.</i>`; 
 }
 
 /**

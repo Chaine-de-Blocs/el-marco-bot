@@ -90,6 +90,9 @@ Client.ElMarco.setMyCommands([{
 }, {
     command: "stopstrategy",
     description: "Stopper les trades automatiques en cours (attention ça ne les clôture pas)",
+}, {
+    command: "strategystats",
+    description: "Afficher les stats de la stratégie en cours",
 }]);
 
 /**

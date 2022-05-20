@@ -152,6 +152,63 @@ const StrategyProcess = class {
     hasStrategy(userID) {
         return this.workers.has(userID);
     }
+
+    /**
+     * 
+     * @param {String} userID 
+     * 
+     * @return {Promise<Object>}
+     * 
+     * @throws {Error}
+     */
+    async computeStats(userID) {
+        if (!this.workers.has(userID)) {
+            throw new Error("No running strategies");
+        }
+
+        const positions = await DB.ListStrategyPositions(userID);
+        const stats = {
+            total_pl: 0,
+            total_closed: 0,
+            avg_margin: 0,
+            avg_price: 0,
+            avg_leverage: 0,
+            avg_pl: 0,
+            avg_exit_price: 0,
+        }
+
+        let totalPosition = 0;
+        let totalPrice = 0;
+        let totalMargin = 0;
+        let totalLeverage = 0;
+        let totalExitPrice = 0;
+
+        let pos;
+        while((pos = await positions.next())) {
+            if (typeof pos === "undefined") {
+                continue;
+            }
+            totalPosition++;
+            stats.total_pl += pos.pl;
+            if (pos.closed) {
+                stats.total_closed += 1;
+            }
+            totalPrice += pos.price;
+            totalMargin += pos.margin;
+            totalLeverage += pos.leverage;
+            totalExitPrice += pos.exit_price;
+        }
+
+        if (totalPosition > 0) {
+            stats.avg_pl = stats.total_pl / totalPosition;
+            stats.avg_price = totalPrice / totalPosition;
+            stats.avg_margin = totalMargin / totalPosition;
+            stats.avg_leverage = totalLeverage / totalPosition;
+            stats.avg_exit_price = totalExitPrice / (totalPosition - stats.total_closed);
+        }
+
+        return stats;
+    }
 }
 
 module.exports = {

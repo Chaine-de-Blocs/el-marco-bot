@@ -95,7 +95,7 @@ Client.ElMarco.onText(new RegExp(`^${Content.Emoji.PriceEmoji}.*`), (msg) => {
     renderDefaultMenu(msg.chat.id, "J'actualise le dernier prix du marché");
 });
 
-Client.ElMarco.onText(/\/strategy.*/, function (msg) {
+Client.ElMarco.onText(/\/strategy( )*$/, function (msg) {
     if (strategy.hasStrategy(msg.chat.id)) {
         Client.ElMarco.sendMessage(
             msg.chat.id,
@@ -200,46 +200,23 @@ Client.ElMarco.onText(/\/strategy.*/, function (msg) {
     }).catch(e => displayChatError(e, msg.chat.id));
 });
 
+Client.ElMarco.onText(/\/strategystats.*/, (msg) => {
+    strategy.computeStats(msg.chat.id)
+        .then(stats => {
+            renderDefaultMenu(
+                msg.chat.id,
+                Content.renderStartegyStats(stats),
+            );
+        })
+        .catch(e => displayChatError(e, msg.chat.id));
+});
+
 Client.ElMarco.onText(/\/stopstrategy.*/, async (msg) => {
     try {
+        const stats = strategy.computeStats(msg.chat.id);
+
         strategy.stopUserStrategy(msg.chat.id);
-        const positions = await DB.ListStrategyPositions(msg.chat.id);
-        const stats = {
-            total_pl: 0,
-            total_closed: 0,
-            avg_margin: 0,
-            avg_price: 0,
-            avg_leverage: 0,
-            avg_pl: 0,
-            avg_exit_price: 0,
-        }
-
-        let totalPosition = 0;
-        let totalPrice = 0;
-        let totalMargin = 0;
-        let totalLeverage = 0;
-        let totalExitPrice = 0;
-
-        while((pos = await positions.next())) {
-            totalPosition++;
-            stats.total_pl += pos.pl;
-            if (pos.closed) {
-                stats.total_closed += 1;
-            }
-            totalPrice += pos.price;
-            totalMargin += pos.margin;
-            totalLeverage += pos.leverage;
-            totalExitPrice += pos.exit_price;
-        }
-
-        if (totalPosition > 0) {
-            stats.avg_pl = stats.total_pl / totalPosition;
-            stats.avg_price = totalPrice / totalPosition;
-            stats.avg_margin = totalMargin / totalPosition;
-            stats.avg_leverage = totalLeverage / totalPosition;
-            stats.avg_exit_price = totalExitPrice / (totalPosition - stats.total_closed);
-        }
-
+        
         renderDefaultMenu(
             msg.chat.id,
             Content.renderStategyStop(stats),
@@ -717,6 +694,8 @@ const renderDefaultMenu = async (chatID, message) => {
     } catch(e) {
         LogLevel.trace("failed to fetch balance");
     }
+
+    // TODO si strat en cours on va l'afficher la yoooo
 
     const balanceBtn = typeof balance !== "undefined"
         ? `${Content.Emoji.BalanceEmoji} Ta balance est de ${balance} sat` 
