@@ -96,6 +96,17 @@ Client.ElMarco.onText(new RegExp(`^${Content.Emoji.PriceEmoji}.*`), (msg) => {
 });
 
 Client.ElMarco.onText(/\/strategy.*/, function (msg) {
+    if (strategy.hasStrategy(msg.chat.id)) {
+        Client.ElMarco.sendMessage(
+            msg.chat.id,
+            Content.renderAlreadyRunningStrat(),
+            {
+                parse_mode: "HTML",
+            }
+        );
+        return;
+    }
+
     Client.ElMarco.sendMessage(
         msg.chat.id,
         Content.renderStartStrategy(),

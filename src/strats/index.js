@@ -142,6 +142,16 @@ const StrategyProcess = class {
                 break;
         }
     }
+
+    /**
+     * 
+     * @param {String} userID
+     * 
+     * @returns {Boolean}
+     */
+    hasStrategy(userID) {
+        return this.workers.has(userID);
+    }
 }
 
 module.exports = {

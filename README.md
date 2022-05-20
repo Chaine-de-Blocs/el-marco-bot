@@ -14,3 +14,8 @@
   - [ ] Uniquement une strategie par utilisateur
   - [x] Stats strategie
   - [x] Handle erreurs HTTP avec max error + fail sinon depasse
+
+## Fix
+
+- Strategy must have an ID, for stats all data are considered to be from the
+same strategy

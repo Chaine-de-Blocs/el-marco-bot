@@ -80,6 +80,16 @@ Sépare les options entre [] par des valeurs :
 
 /**
  * 
+ * @returns {String}
+ */
+const renderAlreadyRunningStrat = () => {
+    return `
+Ah ! Tu as déjà une stratégie en cours, fais d'abord la commande <code>/stopstrategy</code> pour arrêter la stratégie en cours et en lancer une nouvelle.
+    `;
+}
+
+/**
+ * 
  * @param {Object} stats
  * @param {Number} [stats.total_pl]
  * @param {Number} [stats.total_closed]
@@ -338,15 +348,24 @@ Pour t'inspirer voilà quelques commandes pour créer un Future :
  * @returns {String}
  */
 const renderFutureReview = (params, displayPrice) => {
-    // TODO must know the margin by calculation
+    const price = params.price || displayPrice;
+    const margin = (params.margin
+        ? params.margin
+        : (params.quantity / (price * params.leverage)) * 1e8
+    ).toFixed(2);
+    const quantity = (params.quantity
+        ? params.quantity
+        : (params.margin * price * params.leverage) / 1e8
+    ).toFixed(2);
+
     return `
 On va créer ce Future :
 
 Future ${renderSide(params.side)}
-${PriceEmoji} Au prix <b>${params.price ? params.price+"USD" : `Marché (${displayPrice}USD)`}</b>
-${params.quantity ? `${QtyEmoji} Quantité de ` + params.quantity + "USD" : ""}
-${LeverageEmoji} Levier x${params.leverage}
-${params.margin ? `${MarginEmoji} Marge de ` + params.margin + "sat" : ""}
+${PriceEmoji} Au prix <b>${params.price ? params.price+" USD" : `Marché (${displayPrice} USD)`}</b>
+${QtyEmoji} Quantité de <b>${quantity} USD</b>
+${LeverageEmoji} Levier <u>x${params.leverage}</u>
+${MarginEmoji} Marge de <b>${margin} sat</b>
 
 ${renderSL(params.stoploss)}
 ${renderTP(params.takeprofit)}
@@ -559,6 +578,7 @@ module.exports = {
     renderCloseAllFuture,
     renderDepositRequest,
     renderStartStrategy,
+    renderAlreadyRunningStrat,
     renderPL,
     renderSide,
     renderStategyStop,
