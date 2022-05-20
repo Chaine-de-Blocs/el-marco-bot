@@ -77,7 +77,7 @@ ${renderStartHeader(strat)} J'ai échoué lors de la création d'un Future
 👉 C'est pas forcément un gros soucis, je te laisse voir ce qui va pas si ça se répète :
 
 Future ${Content.renderSide(params.side)}
-${Content.Emoji.MarginEmoji} Marge de <b>${params.margin}</b>
+${Content.Emoji.MarginEmoji} Marge de <b>${params.margin} sat</b>
 ${Content.Emoji.LeverageEmoji} Levier de x${params.leverage}
 
 LNMarket m'a retourné cette erreur : ${err}

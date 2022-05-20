@@ -10,7 +10,8 @@ const Messages = {
 
 const options = workerData.opts;
 const lnmClient = new LNMarketsRest(workerData.lnmClient);
-const callFrequencyInMs = 5 * 60 * 1000; // 5 minutes
+const callFrequencyInMs = 5000;
+// const callFrequencyInMs = 5 * 60 * 1000; // 5 minutes
 
 let createdPositions = [];
 let toRecursiveCall;
@@ -63,19 +64,24 @@ const randomStrat = async () => {
         const leverage = Math.floor(Math.random() * (options.max_leverage - 1)) + 1;
         const side = boolRand() ? "b" : "s";
 
-        // TODO make an SL at least for not losing
-        // everything and sell the house, the dog
-        // and the children
-
         const params = {
             margin,
             leverage,
             side,
-            type: "m",
+            type: "m", // always market
         }
 
         try {
+            const ticker = await lnmClient.futuresGetTicker();
+
+            const slPrice = side === "b"
+                ? ticker.offer * 0.95 // long 5% sl
+                : ticker.offer * 1.05 // short 5% sl
+
+            params.stoploss = Math.round(slPrice);
+
             const createPosRes = await lnmClient.futuresNewPosition(params);
+
             createdPositions.push(createPosRes.position.pid);
 
             parentPort.postMessage({
@@ -87,7 +93,7 @@ const randomStrat = async () => {
                 action: Messages.PosCreateFail,
                 data: {
                     params,
-                    error: e,
+                    error: e.code,
                 },
             });
         }
