@@ -13,6 +13,7 @@ const OptionEmoji = "🪙";
 const PriceEmoji = "💳";
 const ProfitEmoji = "🟢";
 const QtyEmoji = "💰";
+const RefreshEmoji = "🔄";
 const SellEmoji = "📉";
 const StartEmoji = "🎬";
 const WarningEmoji = "⚠️";
@@ -618,5 +619,6 @@ module.exports = {
         HelpEmoji,
         StartEmoji,
         WarningEmoji,
+        RefreshEmoji,
     },
 };

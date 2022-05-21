@@ -95,7 +95,7 @@ Client.ElMarco.onText(new RegExp(`^${Content.Emoji.PriceEmoji}.*`), (msg) => {
     renderDefaultMenu(msg.chat.id, "J'actualise le dernier prix du marché");
 });
 
-Client.ElMarco.onText(/\/strategy( )*$/, function (msg) {
+Client.ElMarco.onText(new RegExp(`^(\/strategy)( )*$|^${Content.Emoji.BotEmoji}.*`), function (msg) {
     if (strategy.hasStrategy(msg.chat.id)) {
         Client.ElMarco.sendMessage(
             msg.chat.id,
@@ -695,19 +695,34 @@ const renderDefaultMenu = async (chatID, message) => {
         LogLevel.trace("failed to fetch balance");
     }
 
-    // TODO si strat en cours on va l'afficher la yoooo
+    const menu = [[]];
+
+    const topMenu = [];
+    if (typeof lastOffer !== "undefined") {
+        topMenu.push(`${Content.Emoji.PriceEmoji} Dernier prix à ${lastOffer}USD`);
+    }
 
     const balanceBtn = typeof balance !== "undefined"
         ? `${Content.Emoji.BalanceEmoji} Ta balance est de ${balance} sat` 
-        : `${Content.Emoji.StartEmoji} Créer une session pour commencer`;
+        : `${Content.Emoji.BotEmoji} Créer une session pour commencer`;
 
-    const menu = [
-        [balanceBtn],
-        [`${Content.Emoji.FutureEmoji} Créer un Future`, `${Content.Emoji.OptionEmoji} Créer une Option`, `${Content.Emoji.HelpEmoji} Aide`]
-    ];
+    topMenu.push(balanceBtn);
 
-    if (typeof lastOffer !== "undefined") {
-        menu.push([`${Content.Emoji.PriceEmoji} Dernier prix à ${lastOffer}USD`]);
+    menu.push(topMenu);
+    menu.push([`${Content.Emoji.FutureEmoji} Créer un Future`, `${Content.Emoji.OptionEmoji} Créer une Option`, `${Content.Emoji.HelpEmoji} Aide`]);
+
+    try {
+        const runningStrat = await strategy.getRunningStrategy(chatID);
+
+        const stats = await strategy.computeStats(chatID);
+
+        menu.push([
+            `${Content.Emoji.RefreshEmoji} Je travaille la stratégie ${runningStrat.strategy} | PL ${Content.renderPL(stats.total_pl)}`
+        ]);
+    } catch(_) {
+        menu.push([
+            `${Content.Emoji.BotEmoji} Lancer une Stratégie`
+        ]);
     }
 
     Client.ElMarco.sendMessage(chatID, message, {

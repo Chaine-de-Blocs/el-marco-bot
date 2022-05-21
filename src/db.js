@@ -1,5 +1,6 @@
 const { Mongo } = require("./client");
 const Utils = require("./utils");
+const mongo = require("mongodb");
 
 const CollectionCreds = "api_creds";
 const CollectionStrategies = "strategies";
@@ -138,7 +139,7 @@ const GetStrategy = (chatID, strategyID) => {
     return getDB()
         .collection(CollectionStrategies)
         .findOne({
-            _id: strategyID,
+            _id: new mongo.ObjectId(strategyID),
             user_id: chatID,
         });
 }
@@ -154,7 +155,7 @@ const UpdateStoppedAtStrategy = (chatID, strategyID) => {
     getDB()
         .collection(CollectionStrategies)
         .updateOne({
-            _id: strategyID,
+            _id: new mongo.ObjectId(strategyID),
             user_id: chatID,
         }, {
             $set: {

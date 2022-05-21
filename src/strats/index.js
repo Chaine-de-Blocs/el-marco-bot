@@ -234,13 +234,15 @@ const StrategyProcess = class {
      * @returns {Promise<Object>}
      */
     async getRunningStrategy(userID) {
+        const stratID = this.strategies.get(userID);
+
         if (!stratID) {
             throw new Error("No running strategy");
         }
 
-        const stats = await DB.GetStrategy(userID, stratID);
+        const strategy = await DB.GetStrategy(userID, stratID);
 
-        return stats;
+        return strategy;
     }
 }
 
