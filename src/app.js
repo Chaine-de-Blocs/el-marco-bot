@@ -86,7 +86,7 @@ Client.ElMarco.onText(new RegExp(`^(\/start)( )*$|^${Content.Emoji.StartEmoji}.*
     );
 });
 Client.ElMarco.onText(/\/home/, async (msg) => {
-    renderDefaultMenu(msg.chat.id, "Back to basico on fait quoi ?");
+    renderDefaultMenu(msg.chat.id, Content.renderNeedMe());
 });
 Client.ElMarco.onText(new RegExp(`^(\/help)( )*$|^${Content.Emoji.HelpEmoji}.*`), async (msg) => {
     renderDefaultMenu(msg.chat.id, Content.renderHelp());
@@ -94,8 +94,18 @@ Client.ElMarco.onText(new RegExp(`^(\/help)( )*$|^${Content.Emoji.HelpEmoji}.*`)
 Client.ElMarco.onText(new RegExp(`^${Content.Emoji.PriceEmoji}.*`), (msg) => {
     renderDefaultMenu(msg.chat.id, "J'actualise le dernier prix du marché");
 });
+Client.ElMarco.onText(new RegExp(`^(\/strategystats)( )*|^${Content.Emoji.RefreshEmoji}.*`), (msg) => {
+    strategy.computeStats(msg.chat.id)
+        .then(stats => {
+            renderDefaultMenu(
+                msg.chat.id,
+                Content.renderStartegyStats(stats),
+            );
+        })
+        .catch(e => displayChatError(e, msg.chat.id));
+});
 
-Client.ElMarco.onText(new RegExp(`^(\/strategy)( )*$|^${Content.Emoji.BotEmoji}.*`), function (msg) {
+Client.ElMarco.onText(new RegExp(`^(\/strategy)( )*$|^${Content.Emoji.BotEmoji}.*`), (msg) => {
     if (strategy.hasStrategy(msg.chat.id)) {
         Client.ElMarco.sendMessage(
             msg.chat.id,
@@ -198,17 +208,6 @@ Client.ElMarco.onText(new RegExp(`^(\/strategy)( )*$|^${Content.Emoji.BotEmoji}.
             }
         );
     }).catch(e => displayChatError(e, msg.chat.id));
-});
-
-Client.ElMarco.onText(/\/strategystats.*/, (msg) => {
-    strategy.computeStats(msg.chat.id)
-        .then(stats => {
-            renderDefaultMenu(
-                msg.chat.id,
-                Content.renderStartegyStats(stats),
-            );
-        })
-        .catch(e => displayChatError(e, msg.chat.id));
 });
 
 Client.ElMarco.onText(/\/stopstrategy.*/, async (msg) => {
@@ -717,7 +716,7 @@ const renderDefaultMenu = async (chatID, message) => {
         const stats = await strategy.computeStats(chatID);
 
         menu.push([
-            `${Content.Emoji.RefreshEmoji} Je travaille la stratégie ${runningStrat.strategy} | PL ${Content.renderPL(stats.total_pl)}`
+            `${Content.Emoji.RefreshEmoji} Je travaille la stratégie ${runningStrat.strategy} | PL ${stats.total_pl} sat`
         ]);
     } catch(_) {
         menu.push([
