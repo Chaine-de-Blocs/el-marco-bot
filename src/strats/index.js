@@ -23,6 +23,9 @@ const StrategyProcess = class {
 
     workers = new Map(); /* Map<String, String> */
 
+    // TODO should be in worker somehow
+    strategies = new Map(); /* Map<String, String> */
+
     /**
      * Main thread handling all data
      * 
@@ -34,8 +37,12 @@ const StrategyProcess = class {
      * @param {Number} [opts.max_margin]
      * @param {Array<String>} [opts.logs_for]
      * @param {Object} lnClient
+     * 
+     * @returns {Promise<void>}
      */
-    createUserStrategy(userID, strategy, opts, lnmClient) {
+    async createUserStrategy(userID, strategy, opts, lnmClient) {
+        const stratID = await DB.InsertStrategyBot(userID, strategy, opts); 
+
         const worker = new Worker(path.resolve("./strats/workers/random.js"), {
             workerData: {
                 opts,
@@ -53,7 +60,7 @@ const StrategyProcess = class {
                     DB.InsertStrategyBotPosition(
                         userID,
                         message.data,
-                        strategy,
+                        stratID,
                     );
                     break;
                 case StrategyAction.CloseFuturePosition:
@@ -73,18 +80,25 @@ const StrategyProcess = class {
         });
 
         this.workers.set(userID, worker);
+        this.strategies.set(userID, stratID);
     }
 
     /**
      * 
-     * @param {String} userID 
+     * @param {String} userID
+     * 
+     * @returns {Promise<void>}
      * 
      * @throws {Error}
      */
-    stopUserStrategy(userID) {
+    async stopUserStrategy(userID) {
         if (!this.workers.has(userID)) {
             throw new Error("User has no running strategies");
         }
+
+        const stratID = this.strategies.get(userID);
+
+        await DB.UpdateStoppedAtStrategy(userID, stratID);
 
         const worker = this.workers.get(userID);
 
@@ -93,6 +107,7 @@ const StrategyProcess = class {
         });
 
         this.workers.delete(userID);
+        this.strategies.delete(userID);
     }
 
     /**
@@ -166,7 +181,9 @@ const StrategyProcess = class {
             throw new Error("No running strategies");
         }
 
-        const positions = await DB.ListStrategyPositions(userID);
+        const stratID = this.strategies.get(userID);
+
+        const positions = await DB.ListStrategyPositions(userID, stratID);
         const stats = {
             total_pl: 0,
             total_closed: 0,
@@ -206,6 +223,22 @@ const StrategyProcess = class {
             stats.avg_leverage = totalLeverage / totalPosition;
             stats.avg_exit_price = totalExitPrice / (totalPosition - stats.total_closed);
         }
+
+        return stats;
+    }
+
+    /**
+     * 
+     * @param {String} userID 
+     * 
+     * @returns {Promise<Object>}
+     */
+    async getRunningStrategy(userID) {
+        if (!stratID) {
+            throw new Error("No running strategy");
+        }
+
+        const stats = await DB.GetStrategy(userID, stratID);
 
         return stats;
     }

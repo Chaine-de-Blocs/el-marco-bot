@@ -131,7 +131,7 @@ Client.ElMarco.onText(/\/strategy( )*$/, function (msg) {
                     logs_for: Strat.StrategyActions, // logs everything for now
                 };
 
-                if (matchParams.length >= 5) {
+                if (matchParams && matchParams.length >= 5) {
                     strat = matchParams[1];
                     options.max_openned_positions = matchParams[2]
                         ? +matchParams[2].replace(" ", "")
@@ -213,7 +213,7 @@ Client.ElMarco.onText(/\/strategystats.*/, (msg) => {
 
 Client.ElMarco.onText(/\/stopstrategy.*/, async (msg) => {
     try {
-        const stats = strategy.computeStats(msg.chat.id);
+        const stats = await strategy.computeStats(msg.chat.id);
 
         strategy.stopUserStrategy(msg.chat.id);
         

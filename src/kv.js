@@ -47,6 +47,13 @@ const get = async (key) => {
     return Buffer.from(value, "base64").toString("ascii");
 }
 
+/**
+ * @param {String} key
+ */
+const deleteKey = async (key) => {
+    return await Client.Etcd.delete().key(key);
+}
+
 module.exports = {
-    store, get,
+    store, get, deleteKey,
 }

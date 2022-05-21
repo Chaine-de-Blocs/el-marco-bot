@@ -1,8 +1,8 @@
 const { Mongo } = require("./client");
-const uuid = require("uuid");
 const Utils = require("./utils");
 
 const CollectionCreds = "api_creds";
+const CollectionStrategies = "strategies";
 const CollectionStrategyPositions = "strategy_positions";
 
 const Init = () => {
@@ -13,6 +13,9 @@ const Init = () => {
             const names = d.map(d => d.name);
             if (!names.includes(CollectionCreds)) {
                 getDB().createCollection(CollectionCreds);
+            }
+            if (!names.includes(CollectionStrategies)) {
+                getDB().createCollection(CollectionStrategies);
             }
             if (!names.includes(CollectionStrategyPositions)) {
                 getDB().createCollection(CollectionStrategyPositions);
@@ -83,19 +86,80 @@ const SaveAPICreds = async (chatID, clientId, clientSecret, passphrase) => {
  *
  * @returns {Promise<void>}
  */
-const InsertStrategyBotPosition = (chatID, position, strat) => {
+const InsertStrategyBotPosition = (chatID, position, stratID) => {
     getDB()
         .collection(CollectionStrategyPositions)
         .insertOne({
             _id: position.pid,
             user_id: chatID,
             pl: position.pl,
-            strat,
+            strategy_id: stratID,
             closed: false,
             price: position.price,
             margin: position.margin,
             leverage: position.leverage,
             exit_price: 0,
+        });
+}
+
+/**
+ * 
+ * @param {String} chatID 
+ * @param {String} strategy 
+ * @param {Object} options 
+ * @param {Number} [options.max_openned_positions]
+ * @param {Number} [options.max_leverage]
+ * @param {Number} [options.max_margin]
+ * @param {Number} [options.logs_for]
+ * 
+ * @return {Promise<String>}
+ */
+const InsertStrategyBot = async (chatID, strategy, options) => {
+    const insRes = await getDB()
+        .collection(CollectionStrategies)
+        .insertOne({
+            user_id: chatID,
+            strategy,
+            ...options,
+            stopped_at: null,
+        });
+
+    return insRes.insertedId.toString();
+}
+
+/**
+ * 
+ * @param {String} chatID 
+ * @param {String} strategyID 
+ * 
+ * @returns {Promise<Object>}
+ */
+const GetStrategy = (chatID, strategyID) => {
+    return getDB()
+        .collection(CollectionStrategies)
+        .findOne({
+            _id: strategyID,
+            user_id: chatID,
+        });
+}
+
+/**
+ * 
+ * @param {String}
+ * @param {String}
+ * 
+ * @returns {Promise<void>}
+ */
+const UpdateStoppedAtStrategy = (chatID, strategyID) => {
+    getDB()
+        .collection(CollectionStrategies)
+        .updateOne({
+            _id: strategyID,
+            user_id: chatID,
+        }, {
+            $set: {
+                stopped_at: new Date(),
+            },
         });
 }
 
@@ -125,14 +189,16 @@ const UpdateCloseStrategyBotPosition = async (position) => {
 /**
  * 
  * @param {String} chatID
+ * @param {String} stratID
  * 
  * @returns {Promise<Object>}
  */
-const ListStrategyPositions = async (chatID) => {
+const ListStrategyPositions = async (chatID, stratID) => {
     return getDB()
         .collection(CollectionStrategyPositions)
         .find({
             user_id: chatID,
+            strategy_id: stratID,
         }, {
             projection: {
                 user_id: 0,
@@ -183,6 +249,9 @@ module.exports = {
     SaveAPICreds,
     GetAPICreds,
     InsertStrategyBotPosition,
+    InsertStrategyBot,
+    UpdateStoppedAtStrategy,
+    GetStrategy,
     UpdateCloseStrategyBotPosition,
     ListStrategyPositions,
 };
