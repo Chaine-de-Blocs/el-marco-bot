@@ -93,6 +93,9 @@ Client.ElMarco.setMyCommands([{
 }, {
     command: "strategystats",
     description: "Afficher les stats de la stratégie en cours",
+}, {
+    command: "tips",
+    description: "Fais plaisir à mon créateur en lui envoyant des sats",
 }]);
 
 /**

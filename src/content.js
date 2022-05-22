@@ -67,7 +67,7 @@ ${WarningEmoji} <b>Mais avant tout Gringos tu dois savoir un truc. Moi je ferais
 
 Bon voilà mes stratégies :
 
-<code>random</code> <code>[max_openned_positions]</code> <code>[max_leverage]</code> <code>[max_margin]</code> Je fais tout au hasard comme les analyseurs techniques 💪
+<code>random</code> <code>[max_openned_positions]</code> <code>[max_leverage]</code> <code>[max_margin]</code> Je fais tout au hasard comme les analyseurs techniques 💪 Je mets des StopLoss à 5% de la variation du prix d'entré
 
 Sépare les options entre [] par des valeurs :
 
@@ -449,7 +449,7 @@ Bon t'es sûr de toi ? On est sur un P/L cumulatif de ${agregatedPL < 0 ? LossEm
  * @returns {String}
  */
 const renderCreateFutureHelp = () => {
-    return `<code>/createfuture</code> Créer un Future <code>(l ou s) [q=&lt;USD quantity&gt;] x=&lt;levier&gt; [p=&lt;prix d'entrée&gt;] [m=&lt;marge&gt;] [sl=&lt;Stop Loss&gt;] [tp=&lt;Take Profit&gt;]</code>
+    return `<code>/createfuture</code> Créer un Future <code>(l ou s) [q=&lt;USD quantity&gt;] x=&lt;levier&gt; [p=&lt;prix d'entrée&gt;] [m=&lt;marge&gt;] [sl=&lt;StopLoss&gt;] [tp=&lt;TakeProfit&gt;]</code>
 <i>Mets <code>l</code> pour faire un Long (Buy) et <code>s</code> pour faire un Short (Sell)
 
 <code>q</code> c'est pour la quantité

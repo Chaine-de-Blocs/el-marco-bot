@@ -427,6 +427,44 @@ Client.ElMarco.onText(/\/createfuture .*/gi, authMiddleware(async function(msg, 
     );
 }));
 
+Client.ElMarco.onText(/\/tips( )*(\d*)/, async (msg, match) => {
+    if (match.length >= 3 && match[2]) {
+        const lnmClient = Client.GetLNMarketClient(
+            process.env.LNM_KEY,
+            process.env.LNM_SECRET,
+            process.env.LNM_PASSPHRASE,
+        );
+
+        const sats = +match[2];
+
+        const res = await lnmClient.deposit({ amount: sats });
+
+        Client.ElMarco.sendMessage(
+            msg.chat.id,
+            `🌮 C'est vraiment sympa de penser au créateur de El Marrrco, je te prépare l'invoice pour le tips !`,
+            {
+                parse_mode: "HTML",
+            },
+        );
+
+        setTimeout(() => {
+            // TODO replace buffer usage for sendPhoto which require
+            // stream
+            QRCode.toBuffer(res.paymentRequest)
+                .then(qrcodeBuffer /* Buffer */ => {
+                    Client.ElMarco.sendPhoto(
+                        msg.chat.id,
+                        qrcodeBuffer,
+                        {
+                            caption: res.paymentRequest
+                        }
+                    )
+                })
+                .catch(e => displayChatError(msg.chat.id, e));
+        }, 7500);
+    }
+});
+
 Client.ElMarco.onText(/\/closefuture/, authMiddleware(function(msg) {
     const apiCreds = this.getAPICreds();
     Client.GetLNMarketClient(apiCreds.api_client, apiCreds.api_secret, apiCreds.passphrase).futuresGetPositions()

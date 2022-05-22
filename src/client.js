@@ -1,5 +1,5 @@
 const TelegramBot = require("node-telegram-bot-api");
-const { LNMarketsRest } = require("@ln-markets/api");
+const { LNMarketsRest, LNMarketsWebsocket } = require("@ln-markets/api");
 const { Etcd3 } = require("etcd3");
 const MongoClient = require("mongodb").MongoClient;
 
@@ -9,11 +9,20 @@ const MongoClient = require("mongodb").MongoClient;
 
 const GetLNMarketClient = (lnKey, lnSecret, lnPass) => {
     return new LNMarketsRest({
-        network: 'testnet',
+        network: process.env.LNM_NETWORK,
         key: lnKey,
         secret: lnSecret,
         passphrase: lnPass,
     });
+}
+
+const GetLNMarketWSClient = (lnKey, lnSecret, lnPass) => {
+    return new LNMarketsWebsocket({
+        network: process.env.LNM_NETWORK,
+        key: lnKey,
+        secret: lnSecret,
+        passphrase: lnPass,
+    })
 }
 
 /**
@@ -50,6 +59,7 @@ Mongo.connect()
 
 module.exports = {
     GetLNMarketClient,
+    GetLNMarketWSClient,
     ElMarco,
     Etcd,
     Mongo,
