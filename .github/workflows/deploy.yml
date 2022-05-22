@@ -31,5 +31,6 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          source: "."
           target: "/opt/marco"
           script: npm install
