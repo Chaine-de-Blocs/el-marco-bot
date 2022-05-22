@@ -9,7 +9,7 @@ services:
     ports:
       - "8888:8888"
     volumes:
-      - ./src:/home/node/app
+      - ../:/home/node/app
     depends_on:
       - kv
       - db
@@ -21,13 +21,10 @@ services:
     image: quay.io/coreos/etcd:v3.2.13
     container_name: elmarco_kv
     restart: always
-    environment:
-      - ALLOW_NONE_AUTHENTICATION=yes
-      - ETCD_ADVERTISE_CLIENT_URLS=http://elmarco_kv:2379
-      - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
-
+    env_file:
+      - .kv.env
     volumes:
-      - ./storage/etcd.conf.yml:/opt/bitnami/etcd/conf/etcd.conf.yml
+      - ../storage/etcd.conf.yml:/opt/bitnami/etcd/conf/etcd.conf.yml
     networks:
       - marcobotnet
   
@@ -35,6 +32,8 @@ services:
     image: mongo:5.0.8
     container_name: elmarco_db
     restart: always
+    env_file:
+      - .db.env
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=elmaaarrco
