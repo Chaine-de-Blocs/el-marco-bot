@@ -33,4 +33,6 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           source: "."
           target: "/opt/marco"
-          script: npm install
+          script: |
+            pwd
+            npm install
