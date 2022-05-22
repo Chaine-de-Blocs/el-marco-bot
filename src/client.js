@@ -36,7 +36,7 @@ const ElMarco = new TelegramBot(token, {polling: true});
  * KV
  */
 const Etcd = new Etcd3({
-    hosts: "elmarco_kv:2379",
+    hosts: process.env.KV_HOST,
     dialTimeout: 3000,
 });
 
@@ -49,7 +49,7 @@ Etcd.get("healtcheck")
 /**
  * DB
  */
-const Mongo = new MongoClient("mongodb://root:elmaaarrco@elmarco_db:27017");
+const Mongo = new MongoClient(process.env.DB_HOST);
 
 Mongo.connect()
     .catch((e) => {
