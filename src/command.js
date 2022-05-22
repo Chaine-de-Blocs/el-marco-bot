@@ -96,6 +96,9 @@ Client.ElMarco.setMyCommands([{
 }, {
     command: "tips",
     description: "Fais plaisir à mon créateur en lui envoyant des sats",
+}, {
+    command: "removesession",
+    description: "Supprime ta session en cours, j'oublie tous tes accès API",
 }]);
 
 /**

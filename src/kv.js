@@ -9,7 +9,7 @@ const Client = require("./client");
  * @param {String|undefined} key 
  * @param {Promise<String>} key
  */
-const store = async (value, key) => {
+const Store = async (value, key) => {
     if (typeof key === "undefined") {
         key = uuid.v4();
     }
@@ -31,7 +31,7 @@ const store = async (value, key) => {
  * @param {String} key 
  * @returns {Promise<String>} value
  */
-const get = async (key) => {
+const Get = async (key) => {
     if (typeof key === "undefined") {
         throw new Error("key is undefined");
     }
@@ -50,10 +50,10 @@ const get = async (key) => {
 /**
  * @param {String} key
  */
-const deleteKey = async (key) => {
+const Delete = async (key) => {
     return await Client.Etcd.delete().key(key);
 }
 
 module.exports = {
-    store, get, deleteKey,
+    Store, Get, Delete,
 }

@@ -26,7 +26,7 @@ const authMiddleware = useMdw(Auth.authMiddleware(displayChatError));
 Client.ElMarco.onText(new RegExp(`^(\/start)( )*$|^${Content.Emoji.StartEmoji}.*`), async (msg) => {
     const msgSent = await Client.ElMarco.sendMessage(
         msg.chat.id,
-        Content.renderStartAPICreds(),
+        Content.renderStartAPICreds(process.env.LNM_NETWORK),
         {
             parse_mode: "HTML",
             reply_markup: {
@@ -63,7 +63,7 @@ Client.ElMarco.onText(new RegExp(`^(\/start)( )*$|^${Content.Emoji.StartEmoji}.*
                     await DB.SaveAPICreds(msg.chat.id, clientId, clientSecret, passphrase);
 
                     // TODO allow user to define session expiration
-                    await KV.store(passphrase, msg.chat.id);
+                    await KV.Store(passphrase, msg.chat.id);
 
                     Client.ElMarco.sendMessage(
                         msg.chat.id,
@@ -85,6 +85,13 @@ Client.ElMarco.onText(new RegExp(`^(\/start)( )*$|^${Content.Emoji.StartEmoji}.*
         }
     );
 });
+
+Client.ElMarco.onText(/\/removesession( )*/, (msg) => { 
+    KV.Delete(msg.chat.id);
+    DB.DeleteAPICreds(msg.chat.id);
+    renderDefaultMenu(msg.chat.id, Content.renderRemoveSessionMessage())
+});
+
 Client.ElMarco.onText(/\/home/, async (msg) => {
     renderDefaultMenu(msg.chat.id, Content.renderNeedMe());
 });
@@ -181,7 +188,7 @@ Client.ElMarco.onText(new RegExp(`^(\/strategy)( )*$|^${Content.Emoji.BotEmoji}.
 
                 let id = "";
                 try {
-                    id = await KV.store(payload);
+                    id = await KV.Store(payload);
                 } catch(e) {
                     displayChatError(new Error("Server prob yiks"), msg.chat.id)
                     return
@@ -385,7 +392,7 @@ Client.ElMarco.onText(/\/createfuture .*/gi, authMiddleware(async function(msg, 
 
     let id = "";
     try {
-        id = await KV.store(payload);
+        id = await KV.Store(payload);
     } catch(e) {
         displayChatError(new Error("Server prob yiks"), msg.chat.id)
         return
@@ -441,7 +448,7 @@ Client.ElMarco.onText(/\/tips( )*(\d*)/, async (msg, match) => {
 
         Client.ElMarco.sendMessage(
             msg.chat.id,
-            `🌮 C'est vraiment sympa de penser au créateur de El Marrrco, je te prépare l'invoice pour le tips !`,
+            Content.renderTipsMessage(),
             {
                 parse_mode: "HTML",
             },
@@ -653,7 +660,7 @@ Client.ElMarco.on("callback_query", async (query) => {
                 break;
             }
 
-            KV.get(data[1])
+            KV.Get(data[1])
                 .then(async value => {
                     const params = JSON.parse(value);
                     const res = await lnClient.futuresNewPosition(params);
@@ -683,7 +690,7 @@ Client.ElMarco.on("callback_query", async (query) => {
                 break;
             }
 
-            KV.get(data[1])
+            KV.Get(data[1])
                 .then(async value => {
                     const params = JSON.parse(value);
 
@@ -741,7 +748,7 @@ const renderDefaultMenu = async (chatID, message) => {
 
     const balanceBtn = typeof balance !== "undefined"
         ? `${Content.Emoji.BalanceEmoji} Ta balance est de ${balance} sat` 
-        : `${Content.Emoji.BotEmoji} Créer une session pour commencer`;
+        : `${Content.Emoji.StartEmoji} Créer une session pour commencer`;
 
     topMenu.push(balanceBtn);
 

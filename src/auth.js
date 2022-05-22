@@ -4,7 +4,7 @@ const DB = require("./db");
 const authMiddleware = function(displayErrFn) {
     return function* () {
         try {
-            const passphrase = yield KV.get(this.chatId);
+            const passphrase = yield KV.Get(this.chatId);
 
             if (!passphrase) {
                 throw new Error("session expired");
@@ -30,7 +30,7 @@ const authMiddleware = function(displayErrFn) {
  * @throws Error
  */
 const fetchAPICreds = async (chatID) => {
-    const passphrase = await KV.get(chatID);
+    const passphrase = await KV.Get(chatID);
 
     if (!passphrase) {
         throw new Error("session expired");

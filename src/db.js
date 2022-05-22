@@ -53,6 +53,20 @@ const SaveAPICreds = async (chatID, clientId, clientSecret, passphrase) => {
 
 /**
  * 
+ * @param {String} chatID 
+ * 
+ * @returns {Promise<any>}
+ */
+const DeleteAPICreds = async (chatID) => {
+    return getDB()
+        .collection(CollectionCreds)
+        .deleteOne({
+            _id: chatID,
+        });
+}
+
+/**
+ * 
  * @param {String} chatID
  * @param {Object} position
  * @param {String} [position.id]
@@ -248,6 +262,7 @@ const getDB = () => {
 module.exports = {
     Init,
     SaveAPICreds,
+    DeleteAPICreds,
     GetAPICreds,
     InsertStrategyBotPosition,
     InsertStrategyBot,

@@ -19,9 +19,15 @@ const StartEmoji = "🎬";
 const WarningEmoji = "⚠️";
 
 /**
+ * @param {String} network
+ * 
  * @returns {String}
  */
-const renderStartAPICreds = () => {
+const renderStartAPICreds = (network) => {
+    const lnMarketURL = network === 'testnet'
+        ? 'https://testnet.lnmarkets.com/user/api'
+        : 'https://lnmarkets.com/user/api'
+
     return `
 Bienvenido Gringos,
 
@@ -29,7 +35,9 @@ Je suis Marco, ou plus connu sous le nom de El Maaarrrco. Avec moi on fait busin
 
 Pour qu'on bosse ensemble tu vas devoir me filer qualques accès à l'API de LNMarket.
 
-Créé ton client API en allant ici <a href="https://testnet.lnmarkets.com/user/api">https://testnet.lnmarkets.com/user/api</a>.
+⚡ On est sur le réseau <b>${network}</b> ⚡
+
+Créé ton client API en allant ici <a href="${lnMarketURL}">${lnMarketURL}</a>.
 
 <b>Pense bien à noter ton <code>passphrase</code> tu en auras besoin pour sécuriser l'accès.</b>
 
@@ -76,6 +84,18 @@ Sépare les options entre [] par des valeurs :
 <code>[max_margin]</code> La marge maximum que je pourrais créer en sats
 
 <i>Ecris moi la stratégie que tu veux que j'active et je m'y mets</i>
+    `;
+}
+
+/**
+ * 
+ * @returns {String}
+ */
+const renderRemoveSessionMessage = () => {
+    return `
+No problemo, j'ai supprimé tes informations secrètes de ma mémoire. Fais attention si tu as une stratégie en cours, cela ne va pas l'arrêter.
+
+Fais <code>/stopstrategy</code> pour l'arrêter
     `;
 }
 
@@ -202,6 +222,7 @@ Pour chaque commande je te donne des précisions en italique, je suis simple et 
 🌀 <b>Général</b> 🌀 
 
 <code>/start</code> Pour démarrer ou refaire une session avec de nouveaux accès API LNMarket
+<code>/removesession</code> Pour mettre fin à ta session El Marco, j'oublie tes accès API LNMarket
 <code>/home</code> Pour revenir à l'accueil
 <code>/help</code> Pour afficher le menu d'aide
 
@@ -227,6 +248,16 @@ ${renderCreateFutureHelp()}
 <code>/strategy</code> Pour démarrer une stratégie automatique. Lance la commande et je te guide.
 <code>/stopstrategy</code> Pour stopper la stratégie en cours, je te ferais un résumé des résultats.
 <code>/strategystats</code> Pour afficher les stats de la stratégie en cours.
+    `;
+}
+
+/**
+ * 
+ * @returns {String}
+ */
+const renderTipsMessage = () => {
+    return `
+🌮 C'est vraiment sympa de penser au créateur de El Marrrco, je te prépare l'invoice pour le tips !
     `;
 }
 
@@ -600,6 +631,8 @@ module.exports = {
     renderStartegyStats,
     renderStartegyPreview,
     renderStrategyStarted,
+    renderTipsMessage,
+    renderRemoveSessionMessage,
     Emoji: {
         FutureEmoji,
         OptionEmoji,
