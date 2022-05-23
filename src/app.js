@@ -1,4 +1,6 @@
-require("dotenv").config();
+require("dotenv").config({
+    path: '../.env',
+});
 const LogLevel = require("loglevel");
 const useMdw = require("node-telegram-bot-api-middleware").use;
 const QRCode = require("qrcode");
