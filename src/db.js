@@ -107,7 +107,7 @@ const InsertStrategyBotPosition = (chatID, position, stratID) => {
         .insertOne({
             _id: position.pid,
             user_id: chatID,
-            pl: position.pl,
+            pl: 0,
             strategy_id: stratID,
             closed: false,
             price: position.price,
