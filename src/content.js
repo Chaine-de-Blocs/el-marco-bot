@@ -162,7 +162,7 @@ Ca te va Gringos ?
  */
 const renderStrategyStarted = (strat) => {
     return `
-🔥 OH ! Du job pour El Marrrco ! Allez je m'y mets, je lance la stratégie <code>${strat}</code>
+🔥 OH ! Du job pour El Marrrco ! Allez je m'y mets, je lance la stratégie <b>${strat}</b>. Je vais te notifier de mes actions au fil du temps.
     `;
 }
 
