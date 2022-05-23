@@ -75,7 +75,7 @@ ${WarningEmoji} <b>Mais avant tout Gringos tu dois savoir un truc. Moi je ferais
 
 Bon voilà mes stratégies :
 
-<code>random</code> <code>[max_openned_positions]</code> <code>[max_leverage]</code> <code>[max_margin]</code> Je fais tout au hasard comme les analyseurs techniques 💪 Je mets des StopLoss à 5% de la variation du prix d'entré
+<code>random</code> <code>[max_openned_positions]</code> <code>[max_leverage]</code> <code>[max_margin]</code> Je fais tout au hasard comme les analyseurs techniques 💪 Je mets pas de StopLoss ni TakeProfit.
 
 Sépare les options entre [] par des valeurs :
 

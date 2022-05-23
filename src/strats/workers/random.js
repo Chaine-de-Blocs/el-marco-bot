@@ -73,12 +73,6 @@ const randomStrat = async () => {
         try {
             const ticker = await lnmClient.futuresGetTicker();
 
-            const slPrice = side === "b"
-                ? ticker.offer * 0.95 // long 5% sl
-                : ticker.offer * 1.05 // short 5% sl
-
-            params.stoploss = Math.round(slPrice);
-
             const createPosRes = await lnmClient.futuresNewPosition(params);
 
             createdPositions.push(createPosRes.position.pid);
