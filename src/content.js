@@ -301,6 +301,7 @@ ${renderHr}
 /**
  * @param {Object} future
  * @param {String} [future.pid]
+ * @param {String} [future.side]
  * @param {Number} [future.creation_ts]
  * @param {Number} [future.quantity]
  * @param {Number} [future.price]
@@ -315,7 +316,7 @@ ${renderHr}
 const renderFuture = (future) => {
     const createdAt = new Date(future.creation_ts);
     return `
-Future <code>${future.pid}</code>
+Future ${renderSide(future.side)} <code>${future.pid}</code>
 <i>Créé le ${createdAt.toLocaleDateString()} à ${createdAt.toLocaleTimeString()}</i>
 
 ${QtyEmoji} Quantité <b>${future.quantity} USD</b>
