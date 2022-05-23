@@ -43,7 +43,7 @@ const StrategyProcess = class {
     async createUserStrategy(userID, strategy, opts, lnmClient) {
         const stratID = await DB.InsertStrategyBot(userID, strategy, opts); 
 
-        const worker = new Worker(path.resolve("./strats/workers/random.js"), {
+        const worker = new Worker(path.resolve("./src/strats/workers/random.js"), {
             workerData: {
                 opts,
                 lnmClient,
@@ -187,6 +187,7 @@ const StrategyProcess = class {
         const stats = {
             total_pl: 0,
             total_closed: 0,
+            total_oppened: 0,
             avg_margin: 0,
             avg_price: 0,
             avg_leverage: 0,
@@ -215,6 +216,8 @@ const StrategyProcess = class {
             totalLeverage += pos.leverage;
             totalExitPrice += pos.exit_price;
         }
+
+        stats.total_oppened = totalPosition;
 
         if (totalPosition > 0) {
             stats.avg_pl = stats.total_pl / totalPosition;

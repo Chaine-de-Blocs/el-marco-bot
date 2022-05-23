@@ -170,6 +170,7 @@ const renderStrategyStarted = (strat) => {
  * @param {Object} stats
  * @param {Number} [stats.total_pl]
  * @param {Number} [stats.total_closed]
+ * @param {Number} [stats.total_oppened]
  * @param {Number} [stats.avg_margin]
  * @param {Number} [stats.avg_price]
  * @param {Number} [stats.avg_leverage]
@@ -184,6 +185,7 @@ ${MarginEmoji} Moyenne de margin <b>${stats.avg_margin.toFixed(2)} sat</b>
 ${PriceEmoji} Moyenne de prix d'entré <b>${stats.avg_price.toFixed(2)} USD</b>
 ${LeverageEmoji} Moyenne de levier <u>x${stats.avg_leverage.toFixed(0)}</u>
 
+J'ai ouvert ${stats.total_oppened} positions.
 J'ai clôturé ${stats.total_closed} positions.
     `;
 }
