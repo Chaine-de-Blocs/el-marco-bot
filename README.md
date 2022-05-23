@@ -1,4 +1,6 @@
-# El Marrrrrcoooo Botto
+# El Marrrrrcoooo Botto Telegram
+
+Actuellement live sur le Testnet https://t.me/ElmarcoBot
 
 - [x] Créer un Future
   - [x] Ajout de ticker
@@ -15,7 +17,3 @@
   - [x] Uniquement une strategie par utilisateur
   - [x] Stats strategie
   - [x] Handle erreurs HTTP avec max error + fail sinon depasse
-
-## Fix
-
-- Strategy must have an ID, for stats all data are considered to be from the same strategy
