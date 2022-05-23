@@ -775,7 +775,7 @@ const renderDefaultMenu = async (chatID, message) => {
         reply_markup: {
             keyboard: menu,
             resize_keyboard: true,
-            one_time_keyboard: true,
+            one_time_keyboard: false,
         },
     });
 }
