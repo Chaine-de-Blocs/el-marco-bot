@@ -252,12 +252,13 @@ ${renderCreateFutureHelp()}
 }
 
 /**
+ * @param {Number} sats
  * 
  * @returns {String}
  */
-const renderTipsMessage = () => {
+const renderTipsMessage = (sats) => {
     return `
-🌮 C'est vraiment sympa de penser au créateur de El Marrrco, je te prépare l'invoice pour le tips !
+🌮 C'est vraiment sympa de penser au créateur de El Marrrco, je te prépare l'invoice de <b>${sats} sat</b> pour le tips !
     `;
 }
 

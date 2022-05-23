@@ -435,41 +435,42 @@ Client.ElMarco.onText(/\/createfuture .*/gi, authMiddleware(async function(msg, 
 }));
 
 Client.ElMarco.onText(/\/tips( )*(\d*)/, async (msg, match) => {
+    let sats = 5000;
     if (match.length >= 3 && match[2]) {
-        const lnmClient = Client.GetLNMarketClient(
-            process.env.LNM_KEY,
-            process.env.LNM_SECRET,
-            process.env.LNM_PASSPHRASE,
-        );
-
-        const sats = +match[2];
-
-        const res = await lnmClient.deposit({ amount: sats });
-
-        Client.ElMarco.sendMessage(
-            msg.chat.id,
-            Content.renderTipsMessage(),
-            {
-                parse_mode: "HTML",
-            },
-        );
-
-        setTimeout(() => {
-            // TODO replace buffer usage for sendPhoto which require
-            // stream
-            QRCode.toBuffer(res.paymentRequest)
-                .then(qrcodeBuffer /* Buffer */ => {
-                    Client.ElMarco.sendPhoto(
-                        msg.chat.id,
-                        qrcodeBuffer,
-                        {
-                            caption: res.paymentRequest
-                        }
-                    )
-                })
-                .catch(e => displayChatError(msg.chat.id, e));
-        }, 7500);
+        sats = +match[2];
     }
+
+    const lnmClient = Client.GetLNMarketClient(
+        process.env.LNM_KEY,
+        process.env.LNM_SECRET,
+        process.env.LNM_PASSPHRASE,
+    );
+
+    const res = await lnmClient.deposit({ amount: sats });
+
+    Client.ElMarco.sendMessage(
+        msg.chat.id,
+        Content.renderTipsMessage(sats),
+        {
+            parse_mode: "HTML",
+        },
+    );
+
+    setTimeout(() => {
+        // TODO replace buffer usage for sendPhoto which require
+        // stream
+        QRCode.toBuffer(res.paymentRequest)
+            .then(qrcodeBuffer /* Buffer */ => {
+                Client.ElMarco.sendPhoto(
+                    msg.chat.id,
+                    qrcodeBuffer,
+                    {
+                        caption: res.paymentRequest
+                    }
+                )
+            })
+            .catch(e => displayChatError(msg.chat.id, e));
+    }, 7500);
 });
 
 Client.ElMarco.onText(/\/closefuture/, authMiddleware(function(msg) {
