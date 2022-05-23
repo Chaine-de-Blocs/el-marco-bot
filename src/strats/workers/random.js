@@ -103,7 +103,8 @@ const randomStrat = async () => {
     }
 }
 
-toRecursiveCall = setTimeout(randomStrat, callFrequencyInMs);
+// 15 seconds for the first round
+toRecursiveCall = setTimeout(randomStrat, 15 * 1000);
 
 parentPort.on("message", (data) => {
     switch(data.action) {
