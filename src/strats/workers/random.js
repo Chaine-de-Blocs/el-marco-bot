@@ -59,7 +59,7 @@ const randomStrat = async () => {
     }
 
     if (doCreatePosition) {
-        const margin = Math.floor(Math.random() * options.max_margin);
+        const margin = Math.floor(Math.random() * (options.max_margin - 1000)) + 1000;
         const leverage = Math.floor(Math.random() * (options.max_leverage - 1)) + 1;
         const side = boolRand() ? "b" : "s";
 
