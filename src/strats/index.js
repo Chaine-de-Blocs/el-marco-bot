@@ -1,4 +1,5 @@
 const LogLevel = require("loglevel");
+const fs = require('fs');
 const { Worker } = require("node:worker_threads");
 
 const path = require('node:path');
@@ -41,9 +42,15 @@ const StrategyProcess = class {
      * @returns {Promise<void>}
      */
     async createUserStrategy(userID, strategy, opts, lnmClient) {
+        const filePath = path.resolve("./src/strats/workers/random.js");
+
+        if (!fs.existsSync(filePath)) {
+            throw new Error("no workers found");
+        }
+
         const stratID = await DB.InsertStrategyBot(userID, strategy, opts); 
 
-        const worker = new Worker(path.resolve("./src/strats/workers/random.js"), {
+        const worker = new Worker(filePath, {
             workerData: {
                 opts,
                 lnmClient,

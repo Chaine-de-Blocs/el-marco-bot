@@ -695,7 +695,7 @@ Client.ElMarco.on("callback_query", async (query) => {
                 .then(async value => {
                     const params = JSON.parse(value);
 
-                    strategy.createUserStrategy(
+                    await strategy.createUserStrategy(
                         query.message.chat.id,
                         params.strat,
                         params.options,
