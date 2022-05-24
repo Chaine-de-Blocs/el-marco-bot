@@ -95,7 +95,7 @@ Ah voilà je vais pouvoir bosser, pour tout te dire je m'ennuyais par ici !
 
 Bon j'ai quelques stratégies dans ma besace, je vais te les dire.
 
-${WarningEmoji} <b>Mais avant tout Gringos tu dois savoir un truc. Moi je ferais mon max pour que tu fasses du pogon, mais sache que je suis pas un génie ni un alchimiste qui va te faire de l'or <i>out of nowhere</i>. Tu risques de perdre un peu, mais tu peux aussi gagner si je me débrouille bien eh !</b>
+${WarningEmoji} <b>Mais avant tout Gringos tu dois savoir un truc. Moi je ferais mon max pour que tu fasses du pognon, mais sache que je suis pas un génie ni un alchimiste qui va te faire de l'or <i>out of nowhere</i>. Tu risques de perdre un peu, mais tu peux aussi gagner si je me débrouille bien eh !</b>
 
 Bon voilà mes stratégies :
 
