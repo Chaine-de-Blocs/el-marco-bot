@@ -1,4 +1,5 @@
 const { parentPort, workerData } = require("node:worker_threads");
+const { exit } = require("node:process");
 const { LNMarketsRest } = require("@ln-markets/api");
 
 const Messages = {
@@ -107,4 +108,5 @@ parentPort.on("message", (data) => {
             hasStopped = true;
             break;
     }
+    exit(0);
 });
