@@ -25,15 +25,19 @@ const WarningEmoji = "⚠️";
  * @returns {String}
  */
 const renderBotRestartMessage = (version, message) => {
+    let innerMessage = "";
+    if (message) {
+        innerMessage = `
+J'ai un message de mon créateur à te passer :
+
+<i>${message}</i>
+        `
+    }
     return `
 📣 Hey t'es là ? Je veux pas te déranger chef, juste je veux t'informer que j'ai été mis à jour en <code>v${version}</code>
 
 Tu trouveras une liste des modifications ici <a href="https://github.com/Chaine-de-Blocs/el-marco-bot#changelogs">https://github.com/Chaine-de-Blocs/el-marco-bot#changelogs</a>
-${message && `
-J'ai un message de mon créateur à te passer :
-
-<i>${message}</i>
-`}
+${innerMessage}
 ⚠️ J'ai pas une énorme mémoire, quand je suis mis à jour j'oublie toutes les stratégies. <b>Si tu avais une stratégie en cours relance là</b>
     `;
 }
