@@ -19,6 +19,26 @@ const StartEmoji = "🎬";
 const WarningEmoji = "⚠️";
 
 /**
+ * @param {String} version
+ * @param {String} message
+ * 
+ * @returns {String}
+ */
+const renderBotRestartMessage = (version, message) => {
+    return `
+📣 Hey t'es là ? Je veux pas te déranger chef, juste je veux t'informer que j'ai été mis à jour en <code>v${version}</code>
+
+Tu trouveras une liste des modifications ici <a href="https://github.com/Chaine-de-Blocs/el-marco-bot/tags">https://github.com/Chaine-de-Blocs/el-marco-bot/tags</a>
+${message && `
+J'ai un message de mon créateur à te passer :
+
+<i>${message}</i>
+`}
+⚠️ J'ai pas une énorme mémoire, quand je suis mis à jour j'oublie toutes les stratégies. <b>Si tu avais une stratégie en cours relance là</b>
+    `;
+}
+
+/**
  * @param {String} network
  * 
  * @returns {String}
@@ -637,6 +657,7 @@ module.exports = {
     renderStrategyStarted,
     renderTipsMessage,
     renderRemoveSessionMessage,
+    renderBotRestartMessage,
     Emoji: {
         FutureEmoji,
         OptionEmoji,

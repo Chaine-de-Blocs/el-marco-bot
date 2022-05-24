@@ -1,5 +1,6 @@
 require("dotenv").config();
 const LogLevel = require("loglevel");
+const { Db } = require("mongodb");
 const useMdw = require("node-telegram-bot-api-middleware").use;
 const QRCode = require("qrcode");
 
@@ -19,6 +20,20 @@ DB.Init();
 const displayChatError = (e, chatId) => {
     LogLevel.warn(`error=[e: ${e}]`);
     Client.ElMarco.sendMessage(chatId, Content.renderError(e));
+}
+
+const init = async () => {
+    const users = await DB.ListUsers();
+    let user;
+    while((user = await users.next())) {
+        Client.ElMarco.sendMessage(
+            user._id,
+            Content.renderBotRestartMessage(process.env.npm_package_version, process.env.CUSTOM_RESTART_MESSAGE),
+            {
+                parse_mode: "HTML",
+            },
+        );
+    }
 }
 
 const authMiddleware = useMdw(Auth.authMiddleware(displayChatError));
@@ -65,13 +80,7 @@ Client.ElMarco.onText(new RegExp(`^(\/start)( )*$|^${Content.Emoji.StartEmoji}.*
                     // TODO allow user to define session expiration
                     await KV.Store(passphrase, msg.chat.id);
 
-                    Client.ElMarco.sendMessage(
-                        msg.chat.id,
-                        Content.renderStartSuccess(),
-                        {
-                            parse_mode: "HTML",
-                        },
-                    );
+                    renderDefaultMenu(msg.chat.id, Content.renderStartSuccess());
                 })
                 .catch(e => {
                     Client.ElMarco.sendMessage(
@@ -779,3 +788,5 @@ const renderDefaultMenu = async (chatID, message) => {
         },
     });
 }
+
+init();

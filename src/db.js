@@ -144,6 +144,16 @@ const InsertStrategyBot = async (chatID, strategy, options) => {
 
 /**
  * 
+ * @returns {Promise<Object>}
+ */
+const ListUsers = () => {
+    return getDB()
+        .collection(CollectionCreds)
+        .find();
+}
+
+/**
+ * 
  * @param {String} chatID 
  * @param {String} strategyID 
  * 
@@ -264,6 +274,7 @@ module.exports = {
     SaveAPICreds,
     DeleteAPICreds,
     GetAPICreds,
+    ListUsers,
     InsertStrategyBotPosition,
     InsertStrategyBot,
     UpdateStoppedAtStrategy,
