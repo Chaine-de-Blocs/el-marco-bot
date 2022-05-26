@@ -194,6 +194,7 @@ const renderStrategyStarted = (strat) => {
  * @param {Object} stats
  * @param {Number} [stats.total_pl]
  * @param {Number} [stats.total_closed]
+ * @param {Number} [stats.total_closed_by_user]
  * @param {Number} [stats.total_oppened]
  * @param {Number} [stats.avg_margin]
  * @param {Number} [stats.avg_price]

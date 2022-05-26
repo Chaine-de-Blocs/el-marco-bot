@@ -621,7 +621,8 @@ Client.ElMarco.on("callback_query", async (query) => {
             }
 
             lnClient.futuresClosePosition({ pid: data[1] })
-                .then((_) => {
+                .then((position) => {
+                    strategy.closePositionManually(query.message.chat.id, position);
                     Client.ElMarco.answerCallbackQuery(query.id);
                     Client.ElMarco.deleteMessage(query.message.chat.id, query.message.message_id);
                     Client.ElMarco.sendMessage(query.message.chat.id, Content.renderCloseFuture(data[1]));

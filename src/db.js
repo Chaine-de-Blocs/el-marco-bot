@@ -101,7 +101,7 @@ const DeleteAPICreds = async (chatID) => {
  *
  * @returns {Promise<void>}
  */
-const InsertStrategyBotPosition = (chatID, position, stratID) => {
+const InsertStrategyPosition = (chatID, position, stratID) => {
     getDB()
         .collection(CollectionStrategyPositions)
         .insertOne({
@@ -110,6 +110,7 @@ const InsertStrategyBotPosition = (chatID, position, stratID) => {
             pl: 0,
             strategy_id: stratID,
             closed: false,
+            closed_by_user: false,
             price: position.price,
             margin: position.margin,
             leverage: position.leverage,
@@ -196,8 +197,9 @@ const UpdateStoppedAtStrategy = (chatID, strategyID) => {
  * @param {String} [position.closed_ts]	
  * @param {Number} [position.exit_price]	
  * @param {Number} [position.pl]
+ * @param {Boolean} closedByUser
  */
-const UpdateCloseStrategyBotPosition = async (position) => {
+const UpdateCloseStrategyPosition = async (position, closedByUser = false) => {
     return getDB()
         .collection(CollectionStrategyPositions)
         .updateOne({
@@ -207,6 +209,7 @@ const UpdateCloseStrategyBotPosition = async (position) => {
                 closed: position.closed,
                 exit_price: position.exit_price,
                 pl: position.pl,
+                closed_by_user: closedByUser,
             }
         });
 }
@@ -290,11 +293,11 @@ module.exports = {
     DeleteAPICreds,
     GetAPICreds,
     ListUsers,
-    InsertStrategyBotPosition,
+    InsertStrategyPosition,
     InsertStrategyBot,
     UpdateStoppedAtStrategy,
     GetStrategy,
-    UpdateCloseStrategyBotPosition,
+    UpdateCloseStrategyPosition,
     ListStrategyPositions,
     FindStrategyPositionByPID,
 };

@@ -7,12 +7,13 @@ const Messages = {
     PosCreateFail: "create_future_pos_fail",
     PosClosed: "close_future_pos",
     PosCloseFail: "close_future_pos_fail",
+    PosClosedByUser: "close_position",
 };
 
 const options = workerData.opts;
 const lnmClient = new LNMarketsRest(workerData.lnmClient);
 // const callFrequencyInMs = 21 * 60 * 1000; // 21 minutes
-const callFrequencyInMs = 5000; // 21 minutes
+const callFrequencyInMs = 15000; // 21 minutes
 
 let createdPositions = [];
 let toRecursiveCall;
@@ -73,8 +74,6 @@ const randomStrat = async () => {
         }
 
         try {
-            const ticker = await lnmClient.futuresGetTicker();
-
             const createPosRes = await lnmClient.futuresNewPosition(params);
 
             createdPositions.push(createPosRes.position.pid);
@@ -107,6 +106,11 @@ parentPort.on("message", (data) => {
         case "stop":
             clearTimeout(toRecursiveCall);
             hasStopped = true;
+            break;
+        case Messages.PosClosedByUser:
+            // TODO beware of concurrent update
+            createdPositions =
+                createdPositions.filter(v => v !== data.pid);
             break;
     }
     exit(0);

@@ -64,14 +64,14 @@ const StrategyProcess = class {
 
             switch(message.action) {
                 case StrategyAction.CreateFuturePosition:
-                    DB.InsertStrategyBotPosition(
+                    DB.InsertStrategyPosition(
                         userID,
                         message.data,
                         stratID,
                     );
                     break;
                 case StrategyAction.CloseFuturePosition:
-                    DB.UpdateCloseStrategyBotPosition(
+                    DB.UpdateCloseStrategyPosition(
                         message.data,
                     );
                     break;
@@ -204,6 +204,7 @@ const StrategyProcess = class {
         const stats = {
             total_pl: 0,
             total_closed: 0,
+            total_closed_by_user: 0,
             total_oppened: 0,
             avg_margin: 0,
             avg_price: 0,
@@ -227,6 +228,9 @@ const StrategyProcess = class {
             stats.total_pl += pos.pl;
             if (pos.closed) {
                 stats.total_closed += 1;
+                if (pos.closed_by_user) {
+                    stats.total_closed_by_user += 1;
+                }
             }
             totalPrice += pos.price;
             totalMargin += pos.margin;
@@ -245,6 +249,26 @@ const StrategyProcess = class {
         }
 
         return stats;
+    }
+
+    /**
+     * 
+     * @param {String} userID 
+     * @param {Object} position 
+     * @param {String} [position.pid]
+     * @param {Boolean} [position.closed]
+     * @param {String} [position.closed_ts]	
+     * @param {Number} [position.exit_price]	
+     * @param {Number} [position.pl]
+     */
+    closePositionManually(userID, position) {
+        if (this.workers.has(userID)) {
+            DB.UpdateCloseStrategyPosition(position, true);
+            this.workers.get(userID).postMessage({
+                action: "close_position",
+                pid: position.pid,
+            });
+        }
     }
 
     /**
