@@ -13,7 +13,7 @@ const Messages = {
 const options = workerData.opts;
 const lnmClient = new LNMarketsRest(workerData.lnmClient);
 // const callFrequencyInMs = 21 * 60 * 1000; // 21 minutes
-const callFrequencyInMs = 15000; // 21 minutes
+const callFrequencyInMs = 10000; // 21 minutes
 
 let createdPositions = [];
 let toRecursiveCall;

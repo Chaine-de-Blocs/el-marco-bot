@@ -270,6 +270,25 @@ const StrategyProcess = class {
             });
         }
     }
+    
+    /**
+     * 
+     * @param {String} userID 
+     * @param {String} pid 
+     * 
+     * @returns {Promise<Boolean>}
+     */
+    async isStrategyPosition(userID, pid) {
+        if (!this.strategies.has(userID)) {
+            return false;
+        }
+        try {
+            const stratPosition = await DB.FindStrategyPositionByPID(userID, pid);
+            return stratPosition !== null;
+        } catch(_) {
+            return false;
+        }
+    }
 
     /**
      * 

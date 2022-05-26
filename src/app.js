@@ -494,10 +494,11 @@ Client.ElMarco.onText(/\/closefuture/, authMiddleware(function(msg) {
                 }
             });
 
-            Client.ElMarco.onReplyToMessage(msg.chat.id, msgSent.message_id, (replyMsg) => {
+            Client.ElMarco.onReplyToMessage(msg.chat.id, msgSent.message_id, async (replyMsg) => {
                 let closingFuture = null;
+                const pid = replyMsg.text.replace(" ", "");
                 for(const f of res) {
-                    if (f.pid === replyMsg.text) {
+                    if (f.pid === pid) {
                         closingFuture = f;
                         break;
                     }
@@ -508,16 +509,17 @@ Client.ElMarco.onText(/\/closefuture/, authMiddleware(function(msg) {
                     return;
                 }
 
+                const isStrategyPosition = await strategy.isStrategyPosition(msg.chat.id, closingFuture.pid);
                 Client.ElMarco.sendMessage(
                     msg.chat.id,
-                    `Perfecto ! Je te montre à quoi il ressemble et tu me confirmes si on le clôture ou non\n\n${Content.renderFuture(closingFuture)}`,
+                    Content.renderCloseFuturePreview(closingFuture, isStrategyPosition),
                     {
                         parse_mode: "HTML",
                         reply_markup: {
                             remove_keyboard: true,
                             inline_keyboard: [[{
                                 text: "Go on le clôture",
-                                callback_data: `${Command.Actions.ActionCloseFuture};${replyMsg.text}`,
+                                callback_data: `${Command.Actions.ActionCloseFuture};${closingFuture.pid}`,
                             }, {
                                 text: "Nope, on annule",
                                 callback_data: `${Command.Actions.ActionCloseFuture};${Command.Actions.ActionCancel}`,

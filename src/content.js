@@ -210,8 +210,7 @@ ${MarginEmoji} Moyenne de margin <b>${stats.avg_margin.toFixed(2)} sat</b>
 ${PriceEmoji} Moyenne de prix d'entré <b>${stats.avg_price.toFixed(2)} USD</b>
 ${LeverageEmoji} Moyenne de levier <u>x${stats.avg_leverage.toFixed(0)}</u>
 
-J'ai ouvert ${stats.total_oppened} positions.
-J'ai clôturé ${stats.total_closed} positions.
+J'ai ouvert <b>${stats.total_oppened}</b> positions et on en a clôturé <b>${stats.total_closed}</b>.
     `;
 }
 
@@ -521,6 +520,28 @@ const renderCreateFutureHelp = () => {
 }
 
 /**
+ * @param {Object} future
+ * @param {String} [future.pid]
+ * @param {String} [future.side]
+ * @param {Number} [future.creation_ts]
+ * @param {Number} [future.quantity]
+ * @param {Number} [future.price]
+ * @param {Number} [future.margin]
+ * @param {Number} [future.liquidation]
+ * @param {Number} [future.stoploss]
+ * @param {Number} [future.takeprofit]
+ * @param {Number} [future.pl]
+ * @param {Number} [future.leverage]
+ * @param {Boolean} isStratPosition
+ * @returns {String}
+ */
+const renderCloseFuturePreview = (future, isStratPosition) => {
+   return `
+Perfecto ! Je te montre à quoi il ressemble et tu me confirmes si on le clôture ou non\n\n${renderFuture(future, isStratPosition)}
+${isStratPosition ? `<i>C'est une position créée par la stratégie, tu peux la fermer manuellement elle sera prise en compte dans les statistiques de la stratégie</i>` : ''}`;
+}
+
+/**
  * 
  * @returns {String}
  */
@@ -645,6 +666,7 @@ module.exports = {
     renderCreateFutureParamsError,
     renderFutureCreated,
     renderFutureReview,
+    renderCloseFuturePreview,
     renderStartAPICreds,
     renderBadAPICreds,
     renderStartSuccess,
