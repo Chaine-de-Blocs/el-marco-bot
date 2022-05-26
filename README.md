@@ -8,6 +8,10 @@ Add [El Marco](https://t.me/ElmarcoBot) in Telegram.
 
 # Changelogs
 
+## v0.2.0
+
+You can now manually close positions created from your running strategy. Closing those positions will be used to calculate strategy perfomance.
+
 ## v0.1.0
 
 Initial release in Testnet
