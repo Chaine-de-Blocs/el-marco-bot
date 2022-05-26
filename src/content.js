@@ -335,13 +335,14 @@ ${renderHr}
  * @param {Number} [future.takeprofit]
  * @param {Number} [future.pl]
  * @param {Number} [future.leverage]
+ * @param {Boolean} isStratPosition
  * @returns {String}
  */
-const renderFuture = (future) => {
+const renderFuture = (future, isStratPosition) => {
     const createdAt = new Date(future.creation_ts);
     return `
 Future ${renderSide(future.side)} <code>${future.pid}</code>
-<i>Créé le ${createdAt.toLocaleDateString()} à ${createdAt.toLocaleTimeString()}</i>
+<i>Créé le ${createdAt.toLocaleDateString()} à ${createdAt.toLocaleTimeString()}${isStratPosition ? ` par la Stratégie de Marco ${BotEmoji}` : ''}</i> 
 
 ${QtyEmoji} Quantité <b>${future.quantity} USD</b>
 ${LeverageEmoji} Le levier est de <u>x${future.leverage}</u>

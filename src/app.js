@@ -122,7 +122,7 @@ Client.ElMarco.onText(new RegExp(`^(\/strategystats)( )*|^${Content.Emoji.Refres
 });
 
 Client.ElMarco.onText(new RegExp(`^(\/strategy)( )*$|^${Content.Emoji.BotEmoji}.*`), (msg) => {
-    if (strategy.hasStrategy(msg.chat.id)) {
+    if (strategy.hasRunningStrategy(msg.chat.id)) {
         Client.ElMarco.sendMessage(
             msg.chat.id,
             Content.renderAlreadyRunningStrat(),
@@ -319,13 +319,14 @@ Client.ElMarco.onText(/\/options/, authMiddleware(function(msg) {
 Client.ElMarco.onText(/\/futures/, authMiddleware(function (msg) {
     const apiCreds = this.getAPICreds();
     Client.GetLNMarketClient(apiCreds.api_client, apiCreds.api_secret, apiCreds.passphrase).futuresGetPositions()
-        .then((res) => {
+        .then(async (res) => {
             if (res.length === 0) {
                 Client.ElMarco.sendMessage(msg.chat.id, Content.renderNoFutures(), { parse_mode: "HTML" });
                 return;
             }
             for(const future of res) {
-                Client.ElMarco.sendMessage(msg.chat.id, Content.renderFuture(future), { parse_mode: "HTML" });
+                const stratFuture = await DB.FindStrategyPositionByPID(msg.chat.id, future.pid);
+                Client.ElMarco.sendMessage(msg.chat.id, Content.renderFuture(future, stratFuture !== null), { parse_mode: "HTML" });
             }
         })
         .catch((e) => displayChatError(e, msg.chat.id));

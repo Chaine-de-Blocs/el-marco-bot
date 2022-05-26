@@ -171,8 +171,18 @@ const StrategyProcess = class {
      * 
      * @returns {Boolean}
      */
-    hasStrategy(userID) {
+    hasRunningStrategy(userID) {
         return this.workers.has(userID);
+    }
+
+    /**
+     * 
+     * @param {String} userID 
+     * 
+     * @returns {String}
+     */
+    getRunningStrategyID(userID) {
+        return this.strategies.get(userID);
     }
 
     /**

@@ -233,6 +233,21 @@ const ListStrategyPositions = async (chatID, stratID) => {
 
 /**
  * 
+ * @param {String} chatID 
+ * @param {String} pid 
+ * @returns {Promise<Object>}
+ */
+const FindStrategyPositionByPID = async (chatID, pid) => {
+    return getDB()
+        .collection(CollectionStrategyPositions)
+        .findOne({
+            _id: pid,
+            user_id: chatID,
+        });
+}
+
+/**
+ * 
  * @param {String} chatId 
  * @param {String} passphrase 
  * 
@@ -281,4 +296,5 @@ module.exports = {
     GetStrategy,
     UpdateCloseStrategyBotPosition,
     ListStrategyPositions,
+    FindStrategyPositionByPID,
 };
