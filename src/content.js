@@ -36,7 +36,7 @@ J'ai un message de mon créateur à te passer :
     return `
 📣 Hey t'es là ? Je veux pas te déranger chef, juste je veux t'informer que j'ai été mis à jour en <code>v${version}</code>
 
-Partage moi à tes camaradas <code>https://t.me/TestElMarcoBot</code>
+Partage moi à tes camaradas <code>https://t.me/ElmarcoBot</code>
 
 Tu trouveras une liste des modifications ici <a href="https://github.com/Chaine-de-Blocs/el-marco-bot#changelogs">https://github.com/Chaine-de-Blocs/el-marco-bot#changelogs</a>
 ${innerMessage}
