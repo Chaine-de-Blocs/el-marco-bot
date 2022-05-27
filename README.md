@@ -8,9 +8,13 @@ Add [El Marco](https://t.me/ElmarcoBot) in Telegram.
 
 # Changelogs
 
+## v0.3.2
+
+Fixes some `NaN` values.
+
 ## v0.3.1
 
-Fixe `random` strat, wa too fast
+Fixes `random` strat, wa too fast
 
 ## v0.3.0
 

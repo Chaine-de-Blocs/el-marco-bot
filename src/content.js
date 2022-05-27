@@ -182,7 +182,7 @@ ${t.__(`Avant de lancer la machine de guerre jette un oeil sur les configuration
 
 ${FutureEmoji} ${t.__(`Je laisserai ouvert un maximum de <b>%s</b> Future`, options.max_openned_positions)}
 ${LeverageEmoji} ${t.__(`Je ferai des leviers qui ne dépasseront pas <u>x%s</u>`, options.max_leverage)}
-${MarginEmoji} ${t.__(`Je ferai des marges au maximum de`)} <b>${t.__n(`%s sat`, options.max_margin)}</b>
+${MarginEmoji} ${t.__(`Je ferai des marges au maximum de`)} <b>${t.__n(`%s sat`, +options.max_margin)}</b>
 
 ${t.__(`Ca te va Gringos ?`)}
     `;
@@ -217,9 +217,9 @@ const renderStrategyStarted = (t, strat) => {
  */
 const renderStartegyStats = (t, stats) => {
     return `
-${t.__(`PL Total`)} ${renderPL(t, stats.total_pl)} ${t.__(`pour un PL moyen de`)} <b>${t.__n(`%s sat`, stats.avg_pl.toFixed(2))}</b>
-${MarginEmoji} ${t.__(`Moyenne de margin`)} <b>${t.__n(`%s sat`, stats.avg_margin.toFixed(2))}</b>
-${PriceEmoji} ${t.__(`Moyenne de prix d'entré`)} <b>${t.__n(`%s USD`, stats.avg_price.toFixed(2))}</b>
+${t.__(`PL Total`)} ${renderPL(t, stats.total_pl)} ${t.__(`pour un PL moyen de`)} <b>${t.__n(`%s sat`, +stats.avg_pl.toFixed(2))}</b>
+${MarginEmoji} ${t.__(`Moyenne de margin`)} <b>${t.__n(`%s sat`, +stats.avg_margin.toFixed(2))}</b>
+${PriceEmoji} ${t.__(`Moyenne de prix d'entré`)} <b>${t.__n(`%s USD`, +stats.avg_price.toFixed(2))}</b>
 ${LeverageEmoji} ${t.__(`Moyenne de levier`)} <u>x${stats.avg_leverage.toFixed(0)}</u>
 
 ${t.__(`J'ai ouvert <b>%s</b> positions et on en a clôturé <b>%s</b>.`, stats.total_oppened, stats.total_closed)}
@@ -376,7 +376,7 @@ ${QtyEmoji} ${t.__(`Quantité`)} <b>${future.quantity} USD</b>
 ${LeverageEmoji} ${t.__(`Le levier est de`)} <u>x${future.leverage}</u>
 
 ${PriceEmoji} ${t.__(`Prix d'entré`)} <b>${future.price} USD</b>
-${MarginEmoji} ${t.__(`Margin de`)} <b>${t.__n(`%s sat`, future.margin)}</b>
+${MarginEmoji} ${t.__(`Margin de`)} <b>${t.__n(`%s sat`, +future.margin)}</b>
 ${LiquidationEmoji} ${t.__(`Liquidation à`)} <b>${future.liquidation} USD</b>
 
 ${renderSL(t, future.stoploss)}
@@ -481,7 +481,7 @@ ${t.__(`Future`)} ${renderSide(params.side)}
 ${PriceEmoji} ${t.__(`Au prix`)} <b>${params.price ? params.price+" USD" : `${t.__(`Marché`)} (${displayPrice} USD)`}</b>
 ${QtyEmoji} ${t.__(`Quantité de`)} <b>${quantity} USD</b>
 ${LeverageEmoji} ${t.__(`Levier`)} <u>x${params.leverage}</u>
-${MarginEmoji} ${t.__(`Marge de`)} <b>${t.__n(`%s sat`, margin)}</b>
+${MarginEmoji} ${t.__(`Marge de`)} <b>${t.__n(`%s sat`, +margin)}</b>
 
 ${renderSL(t, params.stoploss)}
 ${renderTP(t, params.takeprofit)}
@@ -548,7 +548,7 @@ const renderCloseAllFuture = (t) => {
  */
 const renderCloseAllFutureConfirm = (t, agregatedPL) => {
     return `
-${t.__(`Bon t'es sûr de toi ? On est sur un P/L cumulatif de`)} ${agregatedPL < 0 ? LossEmoji : ProfitEmoji } ${t.__n(`%s sat`, agregatedPL)}.
+${t.__(`Bon t'es sûr de toi ? On est sur un P/L cumulatif de`)} ${agregatedPL < 0 ? LossEmoji : ProfitEmoji } ${t.__n(`%s sat`, +agregatedPL)}.
     `;
 }
 
@@ -676,9 +676,9 @@ const renderTP = (t, tp) => {
  */
 const renderPL = (t, pl) => {
     if (pl <= 0) {
-        return `${LossEmoji} ${t.__(`P/L à`)} <b>${t.__n(`%s sat`, pl)}</b>`;
+        return `${LossEmoji} ${t.__(`P/L à`)} <b>${t.__n(`%s sat`, +pl)}</b>`;
     }
-    return `${ProfitEmoji} ${t.__(`P/L à`)} +<b>${t.__n(`%s sat`, pl)}</b>`;
+    return `${ProfitEmoji} ${t.__(`P/L à`)} +<b>${t.__n(`%s sat`, +pl)}</b>`;
 }
 
 /**

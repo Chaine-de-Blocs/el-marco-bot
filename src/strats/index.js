@@ -249,6 +249,8 @@ const StrategyProcess = class {
             stats.avg_exit_price = totalExitPrice / (totalPosition - stats.total_closed);
         }
 
+        console.log(stats);
+
         return stats;
     }
 

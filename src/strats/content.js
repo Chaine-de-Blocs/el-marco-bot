@@ -89,7 +89,7 @@ ${renderStartHeader(t, strat)} ${t.__(`J'ai échoué lors de la création d'un F
 👉 ${t.__(`C'est pas forcément un gros soucis, je te laisse voir ce qui va pas si ça se répète :`)}
 
 ${t.__(`Future`)} ${Content.renderSide(params.side)}
-${Content.Emoji.MarginEmoji} ${t.__(`Marge de`)} <b>${t.__n(`%s sat`, params.margin)}</b>
+${Content.Emoji.MarginEmoji} ${t.__(`Marge de`)} <b>${t.__n(`%s sat`, +params.margin)}</b>
 ${Content.Emoji.LeverageEmoji} ${t.__(`Levier`)} x${params.leverage}
 
 ${t.__(`LNMarket m'a retourné cette erreur`)} : ${err}
