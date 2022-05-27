@@ -2,15 +2,18 @@ const Content = require("../content");
 
 /**
  * 
+ * @param {Object} t for translation
  * @param {String} strat 
  * 
  * @returns {String}
  */
-const renderStartHeader = (strat) => {
-    return `${Content.Emoji.BotEmoji} [Stratégie <b>${strat}</b>]`;
+const renderStartHeader = (t, strat) => {
+    return `${Content.Emoji.BotEmoji} [${t.__(`Stratégie`)} <b>${strat}</b>]`;
 }
 
 /**
+ * 
+ * @param {Object} t for translation
  * @param {Object} future
  * @param {String} [future.pid]
  * @param {Number} [future.creation_ts]
@@ -25,41 +28,50 @@ const renderStartHeader = (strat) => {
  * 
  * @returns {String}
  */
-const renderCreateFuture = (future, strat) => {
+const renderCreateFuture = (t, future, strat) => {
     return `
-${renderStartHeader(strat)} J'ai créé un Future pour toi
+${renderStartHeader(t, strat)} ${t.__(`J'ai créé un Future pour toi`)}
 
-${Content.renderFuture(future)}
+${Content.renderFuture(t, future)}
 
-<i>Tu peux clôturer ce Future si il ne te convient pas avec <code>/closefuture</code> avec l'ID <code>${future.pid}</code></i>
-    `;
-}
-
-const renderCloseFuture = (future, strat) => {
-    return `
-${renderStartHeader(strat)} J'ai clôturé un Future pour toi
-
-Le Future <code>${future.pid}</code> a été clôturé ${Content.renderPL(future.pl)}
+<i>${t.__(`Tu peux clôturer ce Future si il ne te convient pas avec %s avec l'ID %s`, `<code>/closefuture</code>`, `<code>${future.pid}</code>`)}</i>
     `;
 }
 
 /**
  * 
+ * @param {Object} t for translation
+ * @param {Object} future 
+ * @param {String} strat 
+ * @returns 
+ */
+const renderCloseFuture = (t, future, strat) => {
+    return `
+${renderStartHeader(t, strat)} ${t.__(`J'ai clôturé un Future pour toi`)}
+
+${t.__(`Le Future %s a été clôturé`, `<code>${future.pid}</code>`)} ${Content.renderPL(future.pl)}
+    `;
+}
+
+/**
+ * 
+ * @param {Object} t for translation
  * @param {String} pid
  * @param {String} strat
  * 
  * @returns {String}
  */
-const renderCloseFutureFail = (pid, strat) => {
+const renderCloseFutureFail = (t, pid, strat) => {
     return `
-${renderStartHeader(strat)} Woops j'ai pas réussi à clôturer le Future <code>${pid}</code>.
+${renderStartHeader(t, strat)} ${t.__(`Woops j'ai pas réussi à clôturer le Future %s.`, `<code>${pid}</code>`)}
 
-Hey Gringos je vais le retirer de ma stratégie et le laisser de côté, si tu veux le clôturer tape juste <code>/closefuture</code>
+${t.__(`Hey Gringos je vais le retirer de ma stratégie et le laisser de côté, si tu veux le clôturer tape juste %s`, `<code>/closefuture</code>`)}
     `;
 }
 
 /**
  * 
+ * @param {Object} t for translation
  * @param {Object} params
  * @param {Number} [params.margin]
  * @param {Number} [params.leverage]
@@ -70,17 +82,17 @@ Hey Gringos je vais le retirer de ma stratégie et le laisser de côté, si tu v
  * 
  * @returns {String}
  */
-const renderCreateFutureFail = (params, err, strat) => {
+const renderCreateFutureFail = (t, params, err, strat) => {
     return `
-${renderStartHeader(strat)} J'ai échoué lors de la création d'un Future
+${renderStartHeader(t, strat)} ${t.__(`J'ai échoué lors de la création d'un Future`)}
 
-👉 C'est pas forcément un gros soucis, je te laisse voir ce qui va pas si ça se répète :
+👉 ${t.__(`C'est pas forcément un gros soucis, je te laisse voir ce qui va pas si ça se répète :`)}
 
-Future ${Content.renderSide(params.side)}
-${Content.Emoji.MarginEmoji} Marge de <b>${params.margin} sat</b>
-${Content.Emoji.LeverageEmoji} Levier de x${params.leverage}
+${t.__(`Future`)} ${Content.renderSide(params.side)}
+${Content.Emoji.MarginEmoji} ${t.__(`Marge de`)} <b>${t.__n(`%s sat`, params.margin)}</b>
+${Content.Emoji.LeverageEmoji} ${t.__(`Levier`)} x${params.leverage}
 
-LNMarket m'a retourné cette erreur : ${err}
+${t.__(`LNMarket m'a retourné cette erreur`)} : ${err}
     `;
 };
 

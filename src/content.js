@@ -19,55 +19,58 @@ const StartEmoji = "🎬";
 const WarningEmoji = "⚠️";
 
 /**
+ * 
+ * @param {Object} t for translation
  * @param {String} version
  * @param {String} message
  * 
  * @returns {String}
  */
-const renderBotRestartMessage = (version, message) => {
+const renderBotRestartMessage = (t, version, message) => {
     let innerMessage = "";
     if (message) {
         innerMessage = `
-J'ai un message de mon créateur à te passer :
+${t.__(`J'ai un message de mon créateur à te passer :`)}
 
 <i>${message}</i>
         `
     }
     return `
-📣 Hey t'es là ? Je veux pas te déranger chef, juste je veux t'informer que j'ai été mis à jour en <code>v${version}</code>
+📣 ${t.__(`Hey t'es là ? Je veux pas te déranger chef, juste je veux t'informer que j'ai été mis à jour en %s`, `<code>v${version}</code>`)}
 
-Partage moi à tes camaradas <code>https://t.me/ElmarcoBot</code>
+${t.__(`Partage moi à tes camaradas`)} <code>https://t.me/ElmarcoBot</code>
 
-Tu trouveras une liste des modifications ici <a href="https://github.com/Chaine-de-Blocs/el-marco-bot#changelogs">https://github.com/Chaine-de-Blocs/el-marco-bot#changelogs</a>
+${t.__(`Tu trouveras une liste des modifications ici`)} <a href="https://github.com/Chaine-de-Blocs/el-marco-bot#changelogs">https://github.com/Chaine-de-Blocs/el-marco-bot#changelogs</a>
 ${innerMessage}
-⚠️ J'ai pas une énorme mémoire, quand je suis mis à jour j'oublie toutes les stratégies. <b>Si tu avais une stratégie en cours relance là</b>
+⚠️ ${t.__(`J'ai pas une énorme mémoire, quand je suis mis à jour j'oublie toutes les stratégies. <b>Si tu avais une stratégie en cours relance là</b></b>`)}
     `;
 }
 
 /**
+ * @param {Object} t for translation
  * @param {String} network
  * 
  * @returns {String}
  */
-const renderStartAPICreds = (network) => {
+const renderStartAPICreds = (t, network) => {
     const lnMarketURL = network === 'testnet'
         ? 'https://testnet.lnmarkets.com/user/api'
         : 'https://lnmarkets.com/user/api'
 
     return `
-Bienvenido Gringos,
+${t.__("Bienvenido Gringos")},
 
-Je suis Marco, ou plus connu sous le nom de El Maaarrrco. Avec moi on fait business et je ne suis là que pour ça. Tu as raison de t'aventurer dans la finance Bitcoin avec <a href="https://lnmarkets.com/">LNMarket</a>, y'a de quoi se retrousser les manches pour ramassers quelques pépites ici.
+${t.__(`Je suis Marco, ou plus connu sous le nom de El Maaarrrco.`)} ${t.__(`Avec moi on fait business et je ne suis là que pour ça.`)} ${t.__(`Tu as raison de t'aventurer dans la finance Bitcoin avec <a href="https://lnmarkets.com/">LNMarket</a>, y'a de quoi se retrousser les manches pour ramassers quelques pépites ici.`)}
 
-Pour qu'on bosse ensemble tu vas devoir me filer qualques accès à l'API de LNMarket.
+${t.__(`Pour qu'on bosse ensemble tu vas devoir me filer qualques accès à l'API de LNMarket.`)}
 
-⚡ On est sur le réseau <b>${network}</b> ⚡
+⚡ ${t.__(`On est sur le réseau <b>%s</b>`, network)} ⚡
 
-Créé ton client API en allant ici <a href="${lnMarketURL}">${lnMarketURL}</a>.
+${t.__(`Créé ton client API en allant ici %s.`, `<a href="${lnMarketURL}">${lnMarketURL}</a>`)}
 
-<b>Pense bien à noter ton <code>passphrase</code> tu en auras besoin pour sécuriser l'accès.</b>
+<b>${t.__(`Pense bien à noter ton %s tu en auras besoin pour sécuriser l'accès.`, `<code>passphrase</code>`)}</b>
 
-Pour qu'on puisse bien collaborer donne moi les accès suivants :
+${t.__(`Pour qu'on puisse bien collaborer donne moi les accès suivants :`)}
 ${CheckEmoji} Get user
 ${CheckEmoji} Deposit
 ${CheckEmoji} Get open and running positions
@@ -78,65 +81,69 @@ ${CheckEmoji} Close and cancel positions
 ${CheckEmoji} Make a new options trade
 ${CheckEmoji} Get options trades
 
-Tu peux ne pas tout mettre, certaines de mes compétences ne pourront pas être mises à ton service Gringos.
+${t.__(`Tu peux ne pas tout mettre, certaines de mes compétences ne pourront pas être mises à ton service Gringos.`)}
 
-Et enfin transmets les moi par message sous la forme suivante (mets bien un espace entre chaque info) :
+${t.__(`Et enfin transmets les moi par message sous la forme suivante (mets bien un espace entre chaque info) :`)}
 
 <code>&lt;Api Key&gt; &lt;Api Secret&gt; &lt;Passphrase&gt;</code>
 
-<i>Pour ta sécurité je ne vais que sauvegarder tes accès API et les chiffrer avec ton <code>passphrase</code>. Ton <code>passphrase</code> sera gardé en session. A tout moment tu pourras supprimer ta session et tes accès avec la commande <code>/removesession</code></i>
+<i>${t.__(`Pour ta sécurité je ne vais que sauvegarder tes accès API et les chiffrer avec ton %s. Ton %s sera gardé en session. A tout moment tu pourras supprimer ta session et tes accès avec la commande %s`, `<code>passphrase</code>`, `<code>passphrase</code>`, `<code>/removesession</code>`)}</i>
     `;
 }
 
 /**
+ * @param {Object} t for translation
  * @returns {String}
  */
-const renderStartStrategy = () => {
+const renderStartStrategy = (t) => {
     return `
-Ah voilà je vais pouvoir bosser, pour tout te dire je m'ennuyais par ici !
+${t.__(`Ah voilà je vais pouvoir bosser, pour tout te dire je m'ennuyais par ici !`)}
 
-Bon j'ai quelques stratégies dans ma besace, je vais te les dire.
+${t.__(`Bon j'ai quelques stratégies dans ma besace, je vais te les dire.`)}
 
-${WarningEmoji} <b>Mais avant tout Gringos tu dois savoir un truc. Moi je ferais mon max pour que tu fasses du pognon, mais sache que je suis pas un génie ni un alchimiste qui va te faire de l'or <i>out of nowhere</i>. Tu risques de perdre un peu, mais tu peux aussi gagner si je me débrouille bien eh !</b>
+<b>${WarningEmoji} ${t.__(`Mais avant tout Gringos tu dois savoir un truc. Moi je ferais mon max pour que tu fasses du pognon, mais sache que je suis pas un génie ni un alchimiste qui va te faire de l'or <i>out of nowhere</i>. Tu risques de perdre un peu, mais tu peux aussi gagner si je me débrouille bien eh !`)}</b>
 
-Bon voilà mes stratégies :
+${t.__(`Bon voilà mes stratégies :`)}
 
-<code>random</code> <code>[max_openned_positions]</code> <code>[max_leverage]</code> <code>[max_margin]</code> Je fais tout au hasard comme les analyseurs techniques 💪 Je mets pas de StopLoss ni TakeProfit.
+<code>random</code> <code>[max_openned_positions]</code> <code>[max_leverage]</code> <code>[max_margin]</code> ${t.__(`Je fais tout au hasard comme les analyseurs techniques 💪 Je mets pas de StopLoss ni TakeProfit.`)}
 
-Sépare les options entre [] par des valeurs :
+${t.__(`Remplace les options entre [] par des valeurs :`)}
 
-<code>[max_openned_positions]</code> Chiffre qui représente le quantité max de positions que je peux ouvrir en même temps
-<code>[max_leverage]</code> Levier maximum que je pourrais mettre
-<code>[max_margin]</code> La marge maximum que je pourrais créer en sats
+<code>[max_openned_positions]</code> ${t.__(`Chiffre qui représente le quantité max de positions que je peux ouvrir en même temps`)}
+<code>[max_leverage]</code> ${t.__(`Levier maximum que je pourrais mettre`)}
+<code>[max_margin]</code> ${t.__(`La marge maximum que je pourrais créer en sats`)}
 
-<i>Ecris moi la stratégie que tu veux que j'active et je m'y mets</i>
+<i>${t.__(`Ecris moi la stratégie que tu veux que j'active et je m'y mets`)}</i>
+    `;
+}
+
+/**
+ * @param {Object} t for translation
+ * 
+ * @returns {String}
+ */
+const renderRemoveSessionMessage = (t) => {
+    return `
+${t.__(`No problemo, j'ai supprimé tes informations secrètes de ma mémoire. Fais attention si tu as une stratégie en cours, cela ne va pas l'arrêter.`)}
+
+${t.__(`Fais %s pour l'arrêter`, `<code>/stopstrategy</code>`)}
+    `;
+}
+
+/**
+ * @param {Object} t for translation
+ * 
+ * @returns {String}
+ */
+const renderAlreadyRunningStrat = (t) => {
+    return `
+${t.__(`Ah ! Tu as déjà une stratégie en cours, fais d'abord la commande %s pour arrêter la stratégie en cours et en lancer une nouvelle.`, `<code>/stopstrategy</code>`)}
     `;
 }
 
 /**
  * 
- * @returns {String}
- */
-const renderRemoveSessionMessage = () => {
-    return `
-No problemo, j'ai supprimé tes informations secrètes de ma mémoire. Fais attention si tu as une stratégie en cours, cela ne va pas l'arrêter.
-
-Fais <code>/stopstrategy</code> pour l'arrêter
-    `;
-}
-
-/**
- * 
- * @returns {String}
- */
-const renderAlreadyRunningStrat = () => {
-    return `
-Ah ! Tu as déjà une stratégie en cours, fais d'abord la commande <code>/stopstrategy</code> pour arrêter la stratégie en cours et en lancer une nouvelle.
-    `;
-}
-
-/**
- * 
+ * @param {Object} t for translation
  * @param {Object} stats
  * @param {Number} [stats.total_pl]
  * @param {Number} [stats.total_closed]
@@ -148,16 +155,17 @@ Ah ! Tu as déjà une stratégie en cours, fais d'abord la commande <code>/stops
 
  * @returns {String}
  */
-const renderStategyStop = (stats) => {
+const renderStategyStop = (t, stats) => {
     return `
-La stratégie automatique a été arrêtée, voilà ses résultats :
+${t.__(`La stratégie automatique a été arrêtée, voilà ses résultats :`)}
 
-${renderStartegyStats(stats)}
+${renderStartegyStats(t, stats)}
     `;
 }
 
 /**
  * 
+ * @param {Object} t for translation
  * @param {String} strat 
  * @param {Object} options 
  * @param {Number} [options.max_openned_positions]
@@ -166,33 +174,35 @@ ${renderStartegyStats(stats)}
  * 
  * @returns {String}
  */
-const renderStartegyPreview = (strat, options) => {
+const renderStartegyPreview = (t, strat, options) => {
     return `
-Tu veux lancer la stratégie ${strat} ? C'est une bonne idée.
+${t.__(`Tu veux lancer la stratégie %s ? C'est une bonne idée.`, strat)}
 
-Avant de lancer la machine de guerre jette un oeil sur les configurations c'est important :
+${t.__(`Avant de lancer la machine de guerre jette un oeil sur les configurations c'est important :`)}
 
-${FutureEmoji} Je laisserai ouvert un maximum de <b>${options.max_openned_positions}</b> Future
-${LeverageEmoji} Je ferai des leviers qui ne dépasseront pas <u>x${options.max_leverage}</u>
-${MarginEmoji} Je ferai des marges au maximum de <b>${options.max_margin} sats</b>
+${FutureEmoji} ${t.__(`Je laisserai ouvert un maximum de <b>%s</b> Future`, options.max_openned_positions)}
+${LeverageEmoji} ${t.__(`Je ferai des leviers qui ne dépasseront pas <u>x%s</u>`, options.max_leverage)}
+${MarginEmoji} ${t.__(`Je ferai des marges au maximum de`)} <b>${t.__n(`%s sat`, options.max_margin)}</b>
 
-Ca te va Gringos ?
+${t.__(`Ca te va Gringos ?`)}
     `;
 }
 
 /**
  * 
+ * @param {Object} t for translation
  * @param {String} strat 
  * 
  * @returns {String}
  */
-const renderStrategyStarted = (strat) => {
+const renderStrategyStarted = (t, strat) => {
     return `
-🔥 OH ! Du job pour El Marrrco ! Allez je m'y mets, je lance la stratégie <b>${strat}</b>. Je vais te notifier de mes actions au fil du temps.
+🔥 ${t.__(`OH ! Du job pour El Marrrco ! Allez je m'y mets, je lance la stratégie <b>%s</b>.`, strat)} ${t.__(`Je vais te notifier de mes actions au fil du temps.`)}
     `;
 }
 
 /**
+ * @param {Object} t for translation
  * @param {Object} stats
  * @param {Number} [stats.total_pl]
  * @param {Number} [stats.total_closed]
@@ -205,102 +215,116 @@ const renderStrategyStarted = (strat) => {
  * @param {Number} [stats.avg_exit_price]
  * @returns {String}
  */
-const renderStartegyStats = (stats) => {
+const renderStartegyStats = (t, stats) => {
     return `
-PL Total ${renderPL(stats.total_pl)} pour un PL moyen de <b>${stats.avg_pl.toFixed(2)} sat</b>
-${MarginEmoji} Moyenne de margin <b>${stats.avg_margin.toFixed(2)} sat</b>
-${PriceEmoji} Moyenne de prix d'entré <b>${stats.avg_price.toFixed(2)} USD</b>
-${LeverageEmoji} Moyenne de levier <u>x${stats.avg_leverage.toFixed(0)}</u>
+${t.__(`PL Total`)} ${renderPL(t, stats.total_pl)} ${t.__(`pour un PL moyen de`)} <b>${t.__n(`%s sat`, stats.avg_pl.toFixed(2))}</b>
+${MarginEmoji} ${t.__(`Moyenne de margin`)} <b>${t.__n(`%s sat`, stats.avg_margin.toFixed(2))}</b>
+${PriceEmoji} ${t.__(`Moyenne de prix d'entré`)} <b>${t.__n(`%s USD`, stats.avg_price.toFixed(2))}</b>
+${LeverageEmoji} ${t.__(`Moyenne de levier`)} <u>x${stats.avg_leverage.toFixed(0)}</u>
 
-J'ai ouvert <b>${stats.total_oppened}</b> positions et on en a clôturé <b>${stats.total_closed}</b>.
+${t.__(`J'ai ouvert <b>%s</b> positions et on en a clôturé <b>%s</b>.`, stats.total_oppened, stats.total_closed)}
+    `;
+}
+
+/**
+ * @param {Object} t for translation
+ * 
+ * @returns {String}
+ */
+const renderStartSuccess = (t) => {
+    return `
+${t.__(`On est bons ! Tes accès sont bien valides. Aucune inquiétude j'ai en mémoire tes accès mais je les ai chiffré eheh ! Ton <code>passphrase</code> est la clé de chiffrement que je garde en session uniquement.`)}
+
+${t.__(`On peut commencer les choses sérieuses, tape %s pour voir les services que je te propose.`, `<code>/help</code>`)}
     `;
 }
 
 /**
  * 
+ * @param {Object} t for translation
+ * 
  * @returns {String}
  */
-const renderStartSuccess = () => {
+const renderRequireNewsession = (t) => {
     return `
-On est bons ! Tes accès sont bien valides. Aucune inquiétude j'ai en mémoire tes accès mais je les ai chiffré eheh ! Ton <code>passphrase</code> est la clé de chiffrement que je garde en session uniquement.
-
-On peut commencer les choses sérieuses, tape <code>/help</code> pour voir les services que je te propose.
-    `;
-}
-
-const renderRequireNewsession = () => {
-    return `
-Ta session est terminée pour ta sécurité, refais en une en tapant <code>/start</code>
+${t.__(`Ta session est terminée pour ta sécurité, refais en une en tapant %s`, `<code>/start</code>`)}
     `;
 }
 
 /**
+ * @param {Object} t for translation
+ * 
  * @returns {String}
  */
-const renderHelp = () => {
+const renderHelp = (t) => {
     return `
-Si tu veux bosser avec moi on va devoir s'accorder, no problemo je suis un partenaire facile et efficace.
+${t.__(`Si tu veux bosser avec moi on va devoir s'accorder, no problemo je suis un partenaire facile et efficace.`)}
 
-Je te dis comment tu vas pouvoir bosser avec moi avec cette <b>liste de commandes</b>.
+${t.__(`Je te dis comment tu vas pouvoir bosser avec moi avec cette <b>liste de commandes</b>.`)}
 
-Tout ce qui est entre des [] sont des paramètres optionnels.
+${t.__(`Tout ce qui est entre des [] sont des paramètres optionnels.`)}
 
-Pour chaque commande je te donne des précisions en italique, je suis simple et efficace mais on fait de la finance sur LN ! Pas un truc de rigolo
+${t.__(`Pour chaque commande je te donne des précisions en italique, je suis simple et efficace mais on fait de la finance sur LN ! Pas un truc de rigolo`)}
 
-🌀 <b>Général</b> 🌀 
+🌀 <b>${t.__(`Général`)}</b> 🌀 
 
-<code>/start</code> Pour démarrer ou refaire une session avec de nouveaux accès API LNMarket
-<code>/removesession</code> Pour mettre fin à ta session El Marco, j'oublie tes accès API LNMarket
-<code>/home</code> Pour revenir à l'accueil
-<code>/help</code> Pour afficher le menu d'aide
-
-
-🌀 <b>Gestion de compte LNMarket</b> 🌀 
-
-<code>/balance</code> Pour afficher ta balance sur LNMarket
-<code>/deposit</code> Pour déposer des fonds dans ton wallet LNMarket
+<code>/start</code> ${t.__(`Pour démarrer ou refaire une session avec de nouveaux accès API LNMarket`)}
+<code>/removesession</code> ${t.__(`Pour mettre fin à ta session El Marco, j'oublie tes accès API LNMarket`)}
+<code>/home</code> ${t.__(`Pour revenir à l'accueil`)}
+<code>/help</code> ${t.__(`Pour afficher le menu d'aide`)}
 
 
-🌀 <b>Trading manuel</b> 🌀 
+🌀 <b>${t.__(`Gestion de compte LNMarket`)}</b> 🌀 
 
-<code>/futures</code> Pour lister tes Futures ouverts
-
-${renderCloseFutureHelp()}
-${renderCloseAllFutureHelp()}
-
-${renderCreateFutureHelp()}
+<code>/balance</code> ${t.__(`Pour afficher ta balance sur LNMarket`)}
+<code>/deposit</code> ${t.__(`Pour déposer des fonds dans ton wallet LNMarket`)}
 
 
-🌀 <b>Trading automatique (stratégies)</b> 🌀
+🌀 <b>${t.__(`Trading manuel`)}</b> 🌀 
 
-<code>/strategy</code> Pour démarrer une stratégie automatique. Lance la commande et je te guide.
-<code>/stopstrategy</code> Pour stopper la stratégie en cours, je te ferais un résumé des résultats.
-<code>/strategystats</code> Pour afficher les stats de la stratégie en cours.
+<code>/futures</code> ${t.__(`Pour lister tes Futures ouverts`)}
+
+${renderCloseFutureHelp(t)}
+${renderCloseAllFutureHelp(t)}
+
+${renderCreateFutureHelp(t)}
+
+
+🌀 <b>${t.__(`Trading automatique (stratégies)`)}</b> 🌀
+
+<code>/strategy</code> ${t.__(`Pour démarrer une stratégie automatique. Lance la commande et je te guide.`)}
+<code>/stopstrategy</code> ${t.__(`Pour stopper la stratégie en cours, je te ferais un résumé des résultats.`)}
+<code>/strategystats</code> ${t.__(`Pour afficher les stats de la stratégie en cours.`)}
     `;
 }
 
 /**
+ * 
+ * @param {Object} t for translation
  * @param {Number} sats
  * 
  * @returns {String}
  */
-const renderTipsMessage = (sats) => {
+const renderTipsMessage = (t, sats) => {
     return `
-🌮 C'est vraiment sympa de penser au créateur de El Marrrco, je te prépare l'invoice de <b>${sats} sat</b> pour le tips !
+🌮 ${t.__(`C'est vraiment sympa de penser au créateur de El Marrrco, je te prépare l'invoice de`)} <b>${t.__n(`%s sat`, sats)}</b> ${t.__(`pour le tips !`)}
     `;
 }
 
 /**
+ * 
+ * @param {Object} t for translation
  * @returns {String}
  */
-const renderDepositRequest = () => {
+const renderDepositRequest = (t) => {
     return `
-Tu veux renflouer les caisses de satoshis ? Très bien dis moi combien tu veux envoyer en <i>sats</i>
+${t.__(`Tu veux renflouer les caisses de satoshis ? Très bien dis moi combien tu veux envoyer en <i>sats</i>`)}
     `
 }
 
 /**
  * 
+ * @param {Object} t for translation
  * @param {Object} option
  * @param {String} [option.id]
  * @param {Number} [option.strike]
@@ -310,21 +334,23 @@ Tu veux renflouer les caisses de satoshis ? Très bien dis moi combien tu veux e
  * @param {Date} [option.expire_at]
  * @returns {String}
  */
-const renderOption = (option) => {
+const renderOption = (t, option) => {
     return `
-Option <code>${option.id}</code>
-<i>Créée le ${option.created_at.toLocaleDateString()} à ${option.created_at.toLocaleTimeString()}</i>
+${t.__(`Option`)} <code>${option.id}</code>
+<i>${t.__(`Créée le`)} ${option.created_at.toLocaleDateString()} ${t.__(`à`)} ${option.created_at.toLocaleTimeString()}</i>
 
-${ExpEmoji} Expire le ${option.expire_at.toLocaleDateString()} à ${option.created_at.toLocaleTimeString()}
+${ExpEmoji} ${t.__(`Expire le`)} ${option.expire_at.toLocaleDateString()} ${t.__(`à`)} ${option.created_at.toLocaleTimeString()}
 
-⚡ Strike à <b>${option.strike} USD</b>
-${QtyEmoji} Quantité <b>${option.quantity} USD</b>
-${MarginEmoji} La marge est de <b>${option.margin} USD</b>
+⚡ ${t.__(`Strike à`)} <b>${option.strike} USD</b>
+${QtyEmoji} ${t.__(`Quantité`)} <b>${option.quantity} USD</b>
+${MarginEmoji} ${t.__(`La marge est de`)} <b>${option.margin} USD</b>
 ${renderHr}
     `;
 }
 
 /**
+ * 
+ * @param {Object} t for translation
  * @param {Object} future
  * @param {String} [future.pid]
  * @param {String} [future.side]
@@ -340,71 +366,81 @@ ${renderHr}
  * @param {Boolean} isStratPosition
  * @returns {String}
  */
-const renderFuture = (future, isStratPosition) => {
+const renderFuture = (t, future, isStratPosition) => {
     const createdAt = new Date(future.creation_ts);
     return `
-Future ${renderSide(future.side)} <code>${future.pid}</code>
-<i>Créé le ${createdAt.toLocaleDateString()} à ${createdAt.toLocaleTimeString()}${isStratPosition ? ` par la Stratégie de Marco ${BotEmoji}` : ''}</i> 
+${t.__(`Future`)} ${renderSide(future.side)} <code>${future.pid}</code>
+<i>${t.__(`Créé le`)} ${createdAt.toLocaleDateString()} ${t.__(`à`)} ${createdAt.toLocaleTimeString()}${isStratPosition ? ` ${t.__(`par la Stratégie de Marco`)} ${BotEmoji}` : ''}</i> 
 
-${QtyEmoji} Quantité <b>${future.quantity} USD</b>
-${LeverageEmoji} Le levier est de <u>x${future.leverage}</u>
+${QtyEmoji} ${t.__(`Quantité`)} <b>${future.quantity} USD</b>
+${LeverageEmoji} ${t.__(`Le levier est de`)} <u>x${future.leverage}</u>
 
-${PriceEmoji} Prix d'entré <b>${future.price} USD</b>
-${MarginEmoji} Margin de <b>${future.margin} sat</b>
-${LiquidationEmoji} Liquidation à <b>${future.liquidation} USD</b>
+${PriceEmoji} ${t.__(`Prix d'entré`)} <b>${future.price} USD</b>
+${MarginEmoji} ${t.__(`Margin de`)} <b>${t.__n(`%s sat`, margin)}</b>
+${LiquidationEmoji} ${t.__(`Liquidation à`)} <b>${future.liquidation} USD</b>
 
-${renderSL(future.stoploss)}
-${renderTP(future.takeprofit)}
+${renderSL(t, future.stoploss)}
+${renderTP(t, future.takeprofit)}
 
-${renderPL(future.pl)}
+${renderPL(t, future.pl)}
     `;
 }
 
 /**
+ * 
+ * @param {Object} t for translation
+ * 
  * @returns {String}
  */
-const renderNoFutures = () => {
-    return `Tu n'as aucun Future d'ouvert`;
+const renderNoFutures = (t) => {
+    return t.__(`Tu n'as aucun Future d'ouvert`);
 }
 
 /**
  * 
+ * @param {Object} t for translation
+ * 
  * @returns {String}
  */
 const renderNoOptions = () => {
-    return `Tu n'a aucune Option d'ouverte`;
+    return t.__(`Tu n'a aucune Option d'ouverte`);
 }
 
 /**
+ * 
+ * @param {Object} t for translation
  * @param {Array.<{pid: String, margin: Number, pl: Number}>} futures
+ * 
  * @returns {String}
  */
-const renderClosingFuture = (futures) => {
+const renderClosingFuture = (t, futures) => {
     let futuresMsg = "";
     for(const f of futures) {
         const plEmoji = f.pl >= 0 ? `${ProfitEmoji} +` : `${LossEmoji} `;
-        futuresMsg += `\n${FutureEmoji} Future <code>${f.pid}</code> ${plEmoji}<b>${f.pl} USD</b> - Margin <b>${f.margin} USD</b>`
+        futuresMsg += `\n${FutureEmoji} ${t.__(`Future`)} <code>${f.pid}</code> ${plEmoji}<b>${f.pl} USD</b> - ${t.__(`Margin`)} <b>${f.margin} USD</b>`
     }
     return `
-Oy Gringos, tu veux qu'on clôture un Future ? Pas de problème, tiens voilà tes Futures ouverts :
+${t.__(`Oy Gringos, tu veux qu'on clôture un Future ? Pas de problème, tiens voilà tes Futures ouverts :`)}
 
-<i>(Clique sur l'ID du Future que tu veux clôturer et envoie le en réponse à ce message)</i>
+<i>(${t.__(`Clique sur l'ID du Future que tu veux clôturer et envoie le en réponse à ce message`)})</i>
 ${futuresMsg}
     `
 }
 
 /**
+ * 
+ * @param {Object} t for translation
  * @param {Number|undefined} lastOffer
  * 
  * @returns {String}
  */
-const renderCreateFutureParamsError = () => {
+const renderCreateFutureParamsError = (t) => {
     return `
-Okay tu veux créer un Future voilà comment on fait par chez moi :
+${t.__(`Okay tu veux créer un Future voilà comment on fait par chez moi :`)}
 
-${renderCreateFutureHelp()}
+${renderCreateFutureHelp(t)}
 
-Pour t'inspirer voilà quelques commandes pour créer un Future :
+${t.__(`Pour t'inspirer voilà quelques commandes pour créer un Future :`)}
 
 <code>/createfuture l q=100 x=50 p=35333 sl=35300</code>
 
@@ -413,6 +449,8 @@ Pour t'inspirer voilà quelques commandes pour créer un Future :
 }
 
 /**
+ * 
+ * @param {Object} t for translation
  * @param {Object} params
  * @param {String} [params.side] 
  * @param {String} [params.type] 
@@ -425,7 +463,7 @@ Pour t'inspirer voilà quelques commandes pour créer un Future :
  * @param {Number} displayPrice price to display if market
  * @returns {String}
  */
-const renderFutureReview = (params, displayPrice) => {
+const renderFutureReview = (t, params, displayPrice) => {
     const price = params.price || displayPrice;
     const margin = (params.margin
         ? params.margin
@@ -437,20 +475,22 @@ const renderFutureReview = (params, displayPrice) => {
     ).toFixed(2);
 
     return `
-On va créer ce Future :
+${t.__(`On va créer ce Future :`)}
 
-Future ${renderSide(params.side)}
-${PriceEmoji} Au prix <b>${params.price ? params.price+" USD" : `Marché (${displayPrice} USD)`}</b>
-${QtyEmoji} Quantité de <b>${quantity} USD</b>
-${LeverageEmoji} Levier <u>x${params.leverage}</u>
-${MarginEmoji} Marge de <b>${margin} sat</b>
+${t.__(`Future`)} ${renderSide(params.side)}
+${PriceEmoji} ${t.__(`Au prix`)} <b>${params.price ? params.price+" USD" : `${t.__(`Marché`)} (${displayPrice} USD)`}</b>
+${QtyEmoji} ${t.__(`Quantité de`)} <b>${quantity} USD</b>
+${LeverageEmoji} ${t.__(`Levier`)} <u>x${params.leverage}</u>
+${MarginEmoji} ${t.__(`Marge de`)} <b>${t.__n(`%s sat`, margin)}</b>
 
-${renderSL(params.stoploss)}
-${renderTP(params.takeprofit)}
+${renderSL(t, params.stoploss)}
+${renderTP(t, params.takeprofit)}
     `;
 }
 
 /**
+ * 
+ * @param {Object} t for translation
  * @param {Object} future
  * @param {String} [future.pid]
  * @param {Number} [future.id]
@@ -472,56 +512,65 @@ ${renderTP(params.takeprofit)}
  * @param {String} [future.creation_ts]
  * @returns {String}
  */
-const renderFutureCreated = (future) => {
+const renderFutureCreated = (t, future) => {
     return `
-Le Future <code>${future.pid}</code> a été créé Gringos ! Tu le verras en cherchant <code>/futures</code>
+${t.__(`Le Future %s a été créé Gringos ! Tu le verras en cherchant %s`, `<code>${future.pid}</code>`, `<code>/futures</code>`)}
     `
 }
 
 /**
  * 
+ * @param {Object} t for translation
  * @param {String} futureID 
  * 
  * @returns {String}
  */
-const renderCloseFuture = (futureID) => {
-    return `Le Future ${futureID} a été clôturé`;
+const renderCloseFuture = (t, futureID) => {
+    return t.__(`Le Future %s a été clôturé`, futureID);
 }
 
 /**
  * 
+ * @param {Object} t for translation
+ * 
  * @returns {String}
  */
-const renderCloseAllFuture = () => {
-    return `Tous les Futures ont été fermés !`
+const renderCloseAllFuture = (t) => {
+    return t.__(`Tous les Futures ont été fermés !`);
 }
 
 /**
+ * 
+ * @param {Object} t for translation
  * @param {Number} agregatedPL
  * 
  * @returns {String}
  */
-const renderCloseAllFutureConfirm = (agregatedPL) => {
+const renderCloseAllFutureConfirm = (t, agregatedPL) => {
     return `
-Bon t'es sûr de toi ? On est sur un P/L cumulatif de ${agregatedPL < 0 ? LossEmoji : ProfitEmoji } ${agregatedPL} sats.
+${t.__(`Bon t'es sûr de toi ? On est sur un P/L cumulatif de`)} ${agregatedPL < 0 ? LossEmoji : ProfitEmoji } ${t.__n(`%s sat`, agregatedPL)}.
     `;
 }
 
 /**
+ * @param {Object} t for translation
+ * 
  * @returns {String}
  */
-const renderCreateFutureHelp = () => {
-    return `<code>/createfuture</code> Créer un Future <code>(l ou s) [q=&lt;USD quantity&gt;] x=&lt;levier&gt; [p=&lt;prix d'entrée&gt;] [m=&lt;marge&gt;] [sl=&lt;StopLoss&gt;] [tp=&lt;TakeProfit&gt;]</code>
-<i>Mets <code>l</code> pour faire un Long (Buy) et <code>s</code> pour faire un Short (Sell)
+const renderCreateFutureHelp = (t) => {
+    return `<code>/createfuture</code> ${t.__(`Créer un Future`)} <code>(l ou s) [q=&lt;USD quantity&gt;] x=&lt;levier&gt; [p=&lt;prix d'entrée&gt;] [m=&lt;marge&gt;] [sl=&lt;StopLoss&gt;] [tp=&lt;TakeProfit&gt;]</code>
+<i>${t.__(`Mets %s pour faire un Long (Buy) et %s pour faire un Short (Sell)`, `<code>l</code>`, `<code>s</code>`)}</i>
 
-<code>q</code> c'est pour la quantité
-<code>m</code> c'est pour la margin
-<b>Tu dois au moins préciser <code>q</code> ou <code>m</code> pour créer le Future</b>
+<code>q</code> ${t.__(`c'est pour la quantité`)}
+<code>m</code> ${t.__(`c'est pour la margin`)}
+<b>${t.__(`Tu dois au moins préciser %s ou %s pour créer le Future`, `<code>q</code>`, `<code>m</code>`)}</b>
 
-<code>p</code> c'est pour préciser le limit price, si tu ne le mets pas alors je vais créer un order au prix de marché.</i>`; 
+<code>p</code> ${t.__(`c'est pour préciser le limit price, si tu ne le mets pas alors je vais créer un order au prix de marché.`)}`; 
 }
 
 /**
+ * 
+ * @param {Object} t for translation
  * @param {Object} future
  * @param {String} [future.pid]
  * @param {String} [future.side]
@@ -537,46 +586,53 @@ const renderCreateFutureHelp = () => {
  * @param {Boolean} isStratPosition
  * @returns {String}
  */
-const renderCloseFuturePreview = (future, isStratPosition) => {
+const renderCloseFuturePreview = (t, future, isStratPosition) => {
    return `
-Perfecto ! Je te montre à quoi il ressemble et tu me confirmes si on le clôture ou non\n\n${renderFuture(future, isStratPosition)}
-${isStratPosition ? `<i>C'est une position créée par la stratégie, tu peux la fermer manuellement elle sera prise en compte dans les statistiques de la stratégie</i>` : ''}`;
+${t.__(`Perfecto ! Je te montre à quoi il ressemble et tu me confirmes si on le clôture ou non`)}
+
+${renderFuture(t, future, isStratPosition)}
+${isStratPosition ? `<i>${t.__(`C'est une position créée par la stratégie, tu peux la fermer manuellement elle sera prise en compte dans les statistiques de la stratégie`)}</i>` : ''}`;
+}
+
+/**
+ * @param {Object} t for translation
+ * 
+ * @returns {String}
+ */
+const renderCloseFutureHelp = (t) => {
+    return `<code>/closefuture</code> ${t.__(`Pour clôturer un Future rien de plus simple je te guide`)}`;
+}
+
+/**
+ * @param {Object} t for translation
+ * 
+ * @returns {String}
+ */
+const renderCloseAllFutureHelp = (t) => {
+    return `<code>/closeallfutures</code> ${t.__(`Pour clôturer tous les Futures ouverts.`)}`;
+}
+
+/**
+ * @param {Object} t for translation
+ * 
+ * @returns {String}
+ */
+const renderNeedMe = (t) => {
+    return t.__("Toujours besoin de moi Gringos ?");
 }
 
 /**
  * 
- * @returns {String}
- */
-const renderCloseFutureHelp = () => {
-    return `<code>/closefuture</code> Pour clôturer un Future rien de plus simple je te guide`;
-}
-
-/**
- * 
- * @returns {String}
- */
-const renderCloseAllFutureHelp = () => {
-    return `<code>/closeallfutures</code> Pour clôturer tous les Futures ouverts.`;
-}
-
-/**
- * 
- * @returns {String}
- */
-const renderNeedMe = () => {
-    return "Toujours besoin de moi Gringos ?";
-}
-
-/**
+ * @param {Object} t for translation
  * @param {Error} err
  * @returns {String}
  */
-const renderBadAPICreds = (err) => {
+const renderBadAPICreds = (t, err) => {
     return `
-Hum... J'ai eu une erreur en essayant tes accès sur l'API de LNMarket, voilà l'erreur :
+${t.__(`Hum... J'ai eu une erreur en essayant tes accès sur l'API de LNMarket, voilà l'erreur :`)}
 ${err}
 
-<b>Pour recommencer fais à nouveau <code>/start</code></b>
+<b>${t.__(`Pour recommencer fais à nouveau %s`, `<code>/start</code>`)}</b>
     `
 }
 
@@ -590,36 +646,39 @@ const renderHr = () => {
 
 /**
  * 
+ * @param {Object} t for translation
  * @param {String} sl 
  * @returns {String}
  */
-const renderSL = (sl) => {
+const renderSL = (t, sl) => {
     if (!sl) {
-        return `${WarningEmoji} Pas de StopLoss`;
+        return `${WarningEmoji} ${t.__(`Pas de StopLoss`)}`;
     }
-    return `StopLoss à <b>${sl} USD</b>`;
+    return `${t.__(`StopLoss à`)} <b>${sl} USD</b>`;
 }
 /**
  * 
+ * @param {Object} t for translation
  * @param {String} tp 
  * @returns {String}
  */
-const renderTP = (tp) => {
+const renderTP = (t, tp) => {
     if (!tp) {
-        return `${WarningEmoji} Pas de TakeProfit`;
+        return `${WarningEmoji} ${t.__(`Pas de TakeProfit`)}`;
     }
-    return `TakeProfit à <b>${tp} USD</b>`;
+    return `${t.__(`TakeProfit à`)} <b>${tp} USD</b>`;
 }
 /**
- * 
+ * @param {Object} t for translation
  * @param {String} pl 
+ * 
  * @returns {String}
  */
-const renderPL = (pl) => {
+const renderPL = (t, pl) => {
     if (pl <= 0) {
-        return `${LossEmoji} P/L à <b>${pl} sat</b>`;
+        return `${LossEmoji} ${t.__(`P/L à`)} <b>${t.__n(`%s sat`, pl)}</b>`;
     }
-    return `${ProfitEmoji} P/L à +<b>${pl} sat</b>`;
+    return `${ProfitEmoji} ${t.__(`P/L à`)} +<b>${t.__n(`%s sat`, pl)}</b>`;
 }
 
 /**
@@ -635,22 +694,26 @@ const renderSide = (side) => {
 
 /**
  * 
+ * @param {Object} t for translation
  * @param {Error} e 
+ * 
  * @returns {String}
  */
-const renderError = (e) => {
-    return `Oulah y'a une erreur : ${e}`;
+const renderError = (t, e) => {
+    return t.__(`Oulah y'a une erreur`) + `> ${e}`;
 }
 
 /**
  * 
+ * @param {Object} t for translation
+ * 
  * @returns {String}
  */
-const renderCmdNotAvailable = () => {
+const renderCmdNotAvailable = (t) => {
     return `
-Cette fonctionnalité n'est pas encore dispo, c'est pas d'chance.
+${t.__(`Cette fonctionnalité n'est pas encore dispo, c'est pas d'chance.`)}
 
-Laisse un mot sur le Github si tu veux à tout prix ce que tu cherches <a href="https://github.com/Chaine-de-Blocs/el-marco-bot">Aller sur le Github de Elmarco</a>
+${t.__(`Laisse un mot sur le Github si tu veux à tout prix ce que tu cherches`)} <a href="https://github.com/Chaine-de-Blocs/el-marco-bot">${t.__(`Aller sur le Github de Elmarco`)}</a>
     `;
 }
 

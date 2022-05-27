@@ -125,11 +125,12 @@ const StrategyProcess = class {
      * @param {String} strategy
      */
     updateAction(chatID, logType, data, strategy) {
+        const t = Client.GetIntl(""); // TODO fetch locale
         switch(logType) {
             case StrategyAction.CreateFuturePosition:
                 Client.ElMarco.sendMessage(
                     chatID,
-                    Content.renderCreateFuture(data, strategy),
+                    Content.renderCreateFuture(t, data, strategy),
                     {
                         parse_mode: "HTML",
                     },
@@ -138,7 +139,7 @@ const StrategyProcess = class {
             case StrategyAction.CloseFuturePosition:
                 Client.ElMarco.sendMessage(
                     chatID,
-                    Content.renderCloseFuture(data, strategy),
+                    Content.renderCloseFuture(t, data, strategy),
                     {
                         parse_mode: "HTML",
                     },
@@ -147,7 +148,7 @@ const StrategyProcess = class {
             case StrategyAction.CreateFuturePositionFail:
                 Client.ElMarco.sendMessage(
                     chatID,
-                    Content.renderCreateFutureFail(data.params, data.error, strategy),
+                    Content.renderCreateFutureFail(t, data.params, data.error, strategy),
                     {
                         parse_mode: "HTML",
                     },
@@ -156,7 +157,7 @@ const StrategyProcess = class {
             case StrategyAction.CloseFuturePositionFail:
                 Client.ElMarco.sendMessage(
                     chatID,
-                    Content.renderCloseFutureFail(data, strategy),
+                    Content.renderCloseFutureFail(t, data, strategy),
                     {
                         parse_mode: "HTML",
                     },

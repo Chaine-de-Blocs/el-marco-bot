@@ -1,6 +1,5 @@
 require("dotenv").config();
 const LogLevel = require("loglevel");
-const { Db } = require("mongodb");
 const useMdw = require("node-telegram-bot-api-middleware").use;
 const QRCode = require("qrcode");
 
@@ -17,18 +16,19 @@ const strategy = new StrategyProcess();
 
 DB.Init();
 
-const displayChatError = (e, chatId) => {
+const displayChatError = (t, e, chatId) => {
     LogLevel.warn(`error=[e: ${e}]`);
-    Client.ElMarco.sendMessage(chatId, Content.renderError(e));
+    Client.ElMarco.sendMessage(chatId, Content.renderError(t, e));
 }
 
 const init = async () => {
     const users = await DB.ListUsers();
+    const t = Client.GetIntl(""); // TODO get locale
     let user;
     while((user = await users.next())) {
         Client.ElMarco.sendMessage(
             user._id,
-            Content.renderBotRestartMessage(process.env.npm_package_version, process.env.CUSTOM_RESTART_MESSAGE),
+            Content.renderBotRestartMessage(t, process.env.npm_package_version, process.env.CUSTOM_RESTART_MESSAGE),
             {
                 parse_mode: "HTML",
             },
@@ -39,9 +39,10 @@ const init = async () => {
 const authMiddleware = useMdw(Auth.authMiddleware(displayChatError));
 
 Client.ElMarco.onText(new RegExp(`^(\/start)( )*$|^${Content.Emoji.StartEmoji}.*`), async (msg) => {
+    const t = Client.GetIntl(msg.from.language_code);
     const msgSent = await Client.ElMarco.sendMessage(
         msg.chat.id,
-        Content.renderStartAPICreds(process.env.LNM_NETWORK),
+        Content.renderStartAPICreds(t, process.env.LNM_NETWORK),
         {
             parse_mode: "HTML",
             reply_markup: {
@@ -59,7 +60,7 @@ Client.ElMarco.onText(new RegExp(`^(\/start)( )*$|^${Content.Emoji.StartEmoji}.*
             if (creds.length !== 3) {
                 Client.ElMarco.sendMessage(
                     msg.chat.id,
-                    Content.renderRequireNewsession(),
+                    Content.renderRequireNewsession(t),
                     {
                         parse_mode: "HTML",
                     },
@@ -80,12 +81,12 @@ Client.ElMarco.onText(new RegExp(`^(\/start)( )*$|^${Content.Emoji.StartEmoji}.*
                     // TODO allow user to define session expiration
                     await KV.Store(passphrase, msg.chat.id);
 
-                    renderDefaultMenu(msg.chat.id, Content.renderStartSuccess());
+                    renderDefaultMenu(t, msg.chat.id, Content.renderStartSuccess(t));
                 })
                 .catch(e => {
                     Client.ElMarco.sendMessage(
                         msg.chat.id,
-                        Content.renderBadAPICreds(e),
+                        Content.renderBadAPICreds(t, e),
                         {
                             parse_mode: "HTML",
                         },
@@ -96,36 +97,43 @@ Client.ElMarco.onText(new RegExp(`^(\/start)( )*$|^${Content.Emoji.StartEmoji}.*
 });
 
 Client.ElMarco.onText(/\/removesession( )*/, (msg) => { 
+    const t = Client.GetIntl(msg.from.language_code);
     KV.Delete(msg.chat.id);
     DB.DeleteAPICreds(msg.chat.id);
-    renderDefaultMenu(msg.chat.id, Content.renderRemoveSessionMessage())
+    renderDefaultMenu(t, msg.chat.id, Content.renderRemoveSessionMessage(t));
 });
 
 Client.ElMarco.onText(/\/home/, async (msg) => {
-    renderDefaultMenu(msg.chat.id, Content.renderNeedMe());
+    const t = Client.GetIntl(msg.from.language_code);
+    renderDefaultMenu(t, msg.chat.id, Content.renderNeedMe(t));
 });
 Client.ElMarco.onText(new RegExp(`^(\/help)( )*$|^${Content.Emoji.HelpEmoji}.*`), async (msg) => {
-    renderDefaultMenu(msg.chat.id, Content.renderHelp());
+    const t = Client.GetIntl(msg.from.language_code);
+    renderDefaultMenu(t, msg.chat.id, Content.renderHelp(t));
 });
 Client.ElMarco.onText(new RegExp(`^${Content.Emoji.PriceEmoji}.*`), (msg) => {
-    renderDefaultMenu(msg.chat.id, "J'actualise le dernier prix du marché");
+    const t = Client.GetIntl(msg.from.language_code);
+    renderDefaultMenu(t, msg.chat.id, t.__("J'actualise le dernier prix du marché"));
 });
 Client.ElMarco.onText(new RegExp(`^(\/strategystats)( )*|^${Content.Emoji.RefreshEmoji}.*`), (msg) => {
+    const t = Client.GetIntl(msg.from.language_code);
     strategy.computeStats(msg.chat.id)
         .then(stats => {
             renderDefaultMenu(
+                t,
                 msg.chat.id,
-                Content.renderStartegyStats(stats),
+                Content.renderStartegyStats(t, stats),
             );
         })
-        .catch(e => displayChatError(e, msg.chat.id));
+        .catch(e => displayChatError(t, e, msg.chat.id));
 });
 
 Client.ElMarco.onText(new RegExp(`^(\/strategy)( )*$|^${Content.Emoji.BotEmoji}.*`), (msg) => {
+    const t = Client.GetIntl(msg.from.language_code);
     if (strategy.hasRunningStrategy(msg.chat.id)) {
         Client.ElMarco.sendMessage(
             msg.chat.id,
-            Content.renderAlreadyRunningStrat(),
+            Content.renderAlreadyRunningStrat(t),
             {
                 parse_mode: "HTML",
             }
@@ -135,7 +143,7 @@ Client.ElMarco.onText(new RegExp(`^(\/strategy)( )*$|^${Content.Emoji.BotEmoji}.
 
     Client.ElMarco.sendMessage(
         msg.chat.id,
-        Content.renderStartStrategy(),
+        Content.renderStartStrategy(t),
         {
             parse_mode: "HTML",
             reply_markup: {
@@ -171,22 +179,26 @@ Client.ElMarco.onText(new RegExp(`^(\/strategy)( )*$|^${Content.Emoji.BotEmoji}.
                 }
 
                 if (!Strategies.includes(strat)) {
-                    displayChatError(new Error(`Strategy ${strat} doesn't exist`), msg.chat.id);
+                    displayChatError(
+                        t,
+                        new Error(t.__(`La stratégie %s n'existe pas`, strat)),
+                        msg.chat.id,
+                    );
                     return;
                 }
 
                 if (options.max_openned_positions > 6) {
-                    displayChatError(new Error("[max_openned_positions] can't be greater than 6"), msg.chat.id);
+                    displayChatError(t, new Error(t.__(`%s ne peut pas être supérieur à %s`, `[max_openned_positions]`, 6)), msg.chat.id);
                     return;
                 }
 
                 if (options.max_leverage > 100) {
-                    displayChatError(new Error("[max_leverage] can't be greater than 100"), msg.chat.id);
+                    displayChatError(t, new Error(t.__(`%s ne peut pas être supérieur à %s`, `[max_leverage]`, 100)), msg.chat.id);
                     return;
                 }
 
                 if (options.max_margin < 776 || options.max_margin > 1000000) {
-                    displayChatError(new Error("[max_margin] can't be smaller than 776 and greater than 1000000"), msg.chat.id);
+                    displayChatError(t, new Error(t.__(`%s ne peut pas inférieur à %s et supérieur à %s`, `[max_margin]`, 776, 1000000)), msg.chat.id);
                     return;
                 }
 
@@ -199,22 +211,22 @@ Client.ElMarco.onText(new RegExp(`^(\/strategy)( )*$|^${Content.Emoji.BotEmoji}.
                 try {
                     id = await KV.Store(payload);
                 } catch(e) {
-                    displayChatError(new Error("Server prob yiks"), msg.chat.id)
+                    displayChatError(t, new Error(t.__(`Prob serveur meh`)), msg.chat.id)
                     return
                 }
                 
                 Client.ElMarco.sendMessage(
                     msg.chat.id,
-                    Content.renderStartegyPreview(strat, options),
+                    Content.renderStartegyPreview(t, strat, options),
                     {
                         parse_mode: "HTML",
                         reply_markup: {
                             remove_keyboard: true,
                             inline_keyboard: [[{
-                                text: "Lance la stratégie",
+                                text: t.__(`Lance la stratégie`),
                                 callback_data: `${Command.Actions.ActionStartStrategy};${id}`,
                             }, {
-                                text: "Nope, on annule",
+                                text: t.__(`Nope, on annule`),
                                 callback_data: `${Command.Actions.ActionCreateFuture};${Command.Actions.ActionCancel}`,
                             }]],
                             one_time_keyboard: true,
@@ -223,33 +235,38 @@ Client.ElMarco.onText(new RegExp(`^(\/strategy)( )*$|^${Content.Emoji.BotEmoji}.
                 );
             }
         );
-    }).catch(e => displayChatError(e, msg.chat.id));
+    }).catch(e => displayChatError(t, e, msg.chat.id));
 });
 
 Client.ElMarco.onText(/\/stopstrategy.*/, async (msg) => {
+    const t = Client.GetIntl(msg.from.language_code);
     try {
         const stats = await strategy.computeStats(msg.chat.id);
 
         strategy.stopUserStrategy(msg.chat.id);
         
         renderDefaultMenu(
+            t,
             msg.chat.id,
-            Content.renderStategyStop(stats),
+            Content.renderStategyStop(t, stats),
         );
     } catch (e) {
-        displayChatError(e, msg.chat.id);
+        displayChatError(t, e, msg.chat.id);
     }
 });
 
 Client.ElMarco.onText(/\/balance.*/, (msg) => {
-    renderDefaultMenu(msg.chat.id, "Je mets ta balance à jour")
+    const t = Client.GetIntl(msg.from.language_code);
+    renderDefaultMenu(t, msg.chat.id, t.__("Je mets ta balance à jour"));
 });
 
 Client.ElMarco.onText(/\/deposit.*/, authMiddleware(function (msg) {
+    const t = Client.GetIntl(msg.from.language_code);
+
     const apiCreds = this.getAPICreds();
     Client.ElMarco.sendMessage(
         msg.chat.id,
-        Content.renderDepositRequest(),
+        Content.renderDepositRequest(t),
         {
             parse_mode: "HTML",
             reply_markup: {
@@ -263,7 +280,7 @@ Client.ElMarco.onText(/\/deposit.*/, authMiddleware(function (msg) {
             async (replyMsg) => {
                 const value = +replyMsg.text;
                 if (typeof value !== "number") {
-                    displayChatError(new Error("provided value is not a number. Please give a number representing sats"), msg.chat.id);
+                    displayChatError(new Error(t.__(`La valeur fournie est pas un nombre. Donne moi une valeur numérique pour représenter une valeur en sats.`)), msg.chat.id);
                     return
                 }
 
@@ -289,20 +306,25 @@ Client.ElMarco.onText(/\/deposit.*/, authMiddleware(function (msg) {
                     .catch(e => displayChatError(msg.chat.id, e));
             }
         );
-    }).catch(e => displayChatError(e, msg.chat.id));
+    }).catch(e => displayChatError(t, e, msg.chat.id));
 
 }));
 
 Client.ElMarco.onText(/\/options/, authMiddleware(function(msg) {
+    const t = Client.GetIntl(msg.from.language_code);
     const apiCreds = this.getAPICreds();
     Client.GetLNMarketClient(apiCreds.api_client, apiCreds.api_secret, apiCreds.passphrase).optionsGetPositions()
         .then((res) => {
             if (res.length === 0) {
-                Client.ElMarco.sendMessage(msg.chat.id, Content.renderNoOptions(), { parse_mode: "HTML" });
+                Client.ElMarco.sendMessage(
+                    msg.chat.id,
+                    Content.renderNoOptions(t),
+                    { parse_mode: "HTML" }
+                );
                 return;
             }
             for(const opt of res) {
-                const contentMsg = Content.renderOption({
+                const contentMsg = Content.renderOption(t, {
                     id: opt.id,
                     strike: opt.strike,
                     margin: opt.margin,
@@ -313,33 +335,46 @@ Client.ElMarco.onText(/\/options/, authMiddleware(function(msg) {
                 Client.ElMarco.sendMessage(msg.chat.id, contentMsg, { parse_mode: "HTML"});
             }
         })
-        .catch((e) => displayChatError(e, msg.chat.id));
+        .catch((e) => displayChatError(t, e, msg.chat.id));
 }));
 
 Client.ElMarco.onText(/\/futures/, authMiddleware(function (msg) {
+    const t = Client.GetIntl(msg.from.language_code);
     const apiCreds = this.getAPICreds();
     Client.GetLNMarketClient(apiCreds.api_client, apiCreds.api_secret, apiCreds.passphrase).futuresGetPositions()
         .then(async (res) => {
             if (res.length === 0) {
-                Client.ElMarco.sendMessage(msg.chat.id, Content.renderNoFutures(), { parse_mode: "HTML" });
+                Client.ElMarco.sendMessage(
+                    msg.chat.id,
+                    Content.renderNoFutures(t),
+                    { parse_mode: "HTML" }
+                );
                 return;
             }
             for(const future of res) {
                 const stratFuture = await DB.FindStrategyPositionByPID(msg.chat.id, future.pid);
-                Client.ElMarco.sendMessage(msg.chat.id, Content.renderFuture(future, stratFuture !== null), { parse_mode: "HTML" });
+                Client.ElMarco.sendMessage(
+                    msg.chat.id,
+                    Content.renderFuture(t, future, stratFuture !== null),
+                    { parse_mode: "HTML" },
+                );
             }
         })
-        .catch((e) => displayChatError(e, msg.chat.id));
+        .catch((e) => displayChatError(t, e, msg.chat.id));
 }));
 
 Client.ElMarco.onText(new RegExp(`^(\/createfuture)( )*$|^${Content.Emoji.FutureEmoji}.*`), (msg) => {
-    renderDefaultMenu(msg.chat.id, Content.renderCreateFutureParamsError())
+    const t = Client.GetIntl(msg.from.language_code);
+    renderDefaultMenu(t, msg.chat.id, Content.renderCreateFutureParamsError(t));
 });
 Client.ElMarco.onText(new RegExp(`^${Content.Emoji.OptionEmoji}.*`), (msg) => {
-    renderDefaultMenu(msg.chat.id, Content.renderCmdNotAvailable());
+    const t = Client.GetIntl(msg.from.language_code);
+    renderDefaultMenu(t, msg.chat.id, Content.renderCmdNotAvailable(t));
 })
 
 Client.ElMarco.onText(/\/createfuture .*/gi, authMiddleware(async function(msg, match) {
+    const t = Client.GetIntl(msg.from.language_code);
+
     const paramsRgx = new RegExp(/\/createfuture (l|s)( +q=\d+[,|\.]?\d*)? (x=\d+)( +p=\d+[,|\.]?\d*)?( +m=\d+[,|\.]?\d*)?( +sl=\d+[,|\.]?\d*)?( +tp=\d+[,|\.]?\d*)?/gi);
 
     const matchParams = paramsRgx.exec(match[0]);
@@ -347,7 +382,7 @@ Client.ElMarco.onText(/\/createfuture .*/gi, authMiddleware(async function(msg, 
     if (!matchParams || matchParams.length < 8) {
         Client.ElMarco.sendMessage(
             msg.chat.id,
-            Content.renderCreateFutureParamsError(),
+            Content.renderCreateFutureParamsError(t),
             {
                 parse_mode: "HTML",
             },
@@ -404,7 +439,7 @@ Client.ElMarco.onText(/\/createfuture .*/gi, authMiddleware(async function(msg, 
     try {
         id = await KV.Store(payload);
     } catch(e) {
-        displayChatError(new Error("Server prob yiks"), msg.chat.id)
+        displayChatError(t, new Error(t.__("Prob serveur meh")), msg.chat.id)
         return
     }
 
@@ -426,16 +461,16 @@ Client.ElMarco.onText(/\/createfuture .*/gi, authMiddleware(async function(msg, 
 
     Client.ElMarco.sendMessage(
         msg.chat.id,
-        Content.renderFutureReview(futureParam, displayPrice),
+        Content.renderFutureReview(t, futureParam, displayPrice),
         {
             parse_mode: "HTML",
             reply_markup: {
                 remove_keyboard: true,
                 inline_keyboard: [[{
-                    text: "Créé le Future",
+                    text: t.__("Créé le Future"),
                     callback_data: `${Command.Actions.ActionCreateFuture};${id}`,
                 }, {
-                    text: "Nope, on annule",
+                    text: t.__("Nope, on annule"),
                     callback_data: `${Command.Actions.ActionCreateFuture};${Command.Actions.ActionCancel}`,
                 }]],
                 one_time_keyboard: true,
@@ -445,6 +480,8 @@ Client.ElMarco.onText(/\/createfuture .*/gi, authMiddleware(async function(msg, 
 }));
 
 Client.ElMarco.onText(/\/tips( )*(\d*)/, async (msg, match) => {
+    const t = Client.GetIntl(msg.from.language_code);
+
     let sats = 5000;
     if (match.length >= 3 && match[2]) {
         sats = +match[2];
@@ -460,7 +497,7 @@ Client.ElMarco.onText(/\/tips( )*(\d*)/, async (msg, match) => {
 
     Client.ElMarco.sendMessage(
         msg.chat.id,
-        Content.renderTipsMessage(sats),
+        Content.renderTipsMessage(t, sats),
         {
             parse_mode: "HTML",
         },
@@ -479,20 +516,25 @@ Client.ElMarco.onText(/\/tips( )*(\d*)/, async (msg, match) => {
                     }
                 )
             })
-            .catch(e => displayChatError(msg.chat.id, e));
+            .catch(e => displayChatError(t, msg.chat.id, e));
     }, 7500);
 });
 
 Client.ElMarco.onText(/\/closefuture/, authMiddleware(function(msg) {
+    const t = Client.GetIntl(msg.from.language_code);
     const apiCreds = this.getAPICreds();
     Client.GetLNMarketClient(apiCreds.api_client, apiCreds.api_secret, apiCreds.passphrase).futuresGetPositions()
         .then(async (res) => {
-            const msgSent = await Client.ElMarco.sendMessage(msg.chat.id, Content.renderClosingFuture(res), {
-                parse_mode: "HTML",
-                reply_markup: {
-                    force_reply: true,
+            const msgSent = await Client.ElMarco.sendMessage(
+                msg.chat.id,
+                Content.renderClosingFuture(t, res),
+                {
+                    parse_mode: "HTML",
+                    reply_markup: {
+                        force_reply: true,
+                    }
                 }
-            });
+            );
 
             Client.ElMarco.onReplyToMessage(msg.chat.id, msgSent.message_id, async (replyMsg) => {
                 let closingFuture = null;
@@ -505,23 +547,26 @@ Client.ElMarco.onText(/\/closefuture/, authMiddleware(function(msg) {
                 }
 
                 if (closingFuture === null) {
-                    Client.ElMarco.sendMessage(msg.chat.id, `C'est quoi cet identifiant ${replyMsg.text} ? Concentre toi je ne le trouve`);
+                    Client.ElMarco.sendMessage(
+                        msg.chat.id,
+                        t.__(`C'est quoi cet identifiant %s ? Concentre toi je ne le trouve`, replyMsg.text),
+                    );
                     return;
                 }
 
                 const isStrategyPosition = await strategy.isStrategyPosition(msg.chat.id, closingFuture.pid);
                 Client.ElMarco.sendMessage(
                     msg.chat.id,
-                    Content.renderCloseFuturePreview(closingFuture, isStrategyPosition),
+                    Content.renderCloseFuturePreview(t, closingFuture, isStrategyPosition),
                     {
                         parse_mode: "HTML",
                         reply_markup: {
                             remove_keyboard: true,
                             inline_keyboard: [[{
-                                text: "Go on le clôture",
+                                text: t.__("Go on le clôture"),
                                 callback_data: `${Command.Actions.ActionCloseFuture};${closingFuture.pid}`,
                             }, {
-                                text: "Nope, on annule",
+                                text: t.__("Nope, on annule"),
                                 callback_data: `${Command.Actions.ActionCloseFuture};${Command.Actions.ActionCancel}`,
                             }]],
                             one_time_keyboard: true,
@@ -531,15 +576,16 @@ Client.ElMarco.onText(/\/closefuture/, authMiddleware(function(msg) {
                 )
             });
         })
-        .catch((e) => displayChatError(e, msg.chat.id))
+        .catch((e) => displayChatError(t, e, msg.chat.id))
 }));
 
 Client.ElMarco.onText(/\/closeallfutures/, authMiddleware(function(msg) {
+    const t = Client.GetIntl(msg.from.language_code);
     const apiCreds = this.getAPICreds();
     Client.GetLNMarketClient(apiCreds.api_client, apiCreds.api_secret, apiCreds.passphrase).futuresGetPositions()
         .then(res => {
             if (res.length === 0) {
-                renderDefaultMenu(msg.chat.id, Content.renderNoFutures())
+                renderDefaultMenu(t, msg.chat.id, Content.renderNoFutures(t))
                 return;
             }
 
@@ -547,11 +593,11 @@ Client.ElMarco.onText(/\/closeallfutures/, authMiddleware(function(msg) {
 
             for(const future of res) {
                 agregatedPL += +future.pl;
-                Client.ElMarco.sendMessage(msg.chat.id, Content.renderFuture(future), { parse_mode: "HTML" });
+                Client.ElMarco.sendMessage(msg.chat.id, Content.renderFuture(t, future), { parse_mode: "HTML" });
             }
             Client.ElMarco.sendMessage(
                 msg.chat.id,
-                Content.renderCloseAllFutureConfirm(agregatedPL),
+                Content.renderCloseAllFutureConfirm(t, agregatedPL),
                 {
                     parse_mode: "HTML",
                     reply_markup: {
@@ -569,19 +615,25 @@ Client.ElMarco.onText(/\/closeallfutures/, authMiddleware(function(msg) {
                 }  
             )
         })
-        .catch(e => displayChatError(e, msg.chat.id));
+        .catch(e => displayChatError(t, e, msg.chat.id));
 }));
 
 // Special case for Balance button in keyboard markup
 Client.ElMarco.onText(new RegExp(`${Content.Emoji.BalanceEmoji}.*`), (msg) => {
-    renderDefaultMenu(msg.chat.id, Content.renderNeedMe());
+    const t = Client.GetIntl(msg.from.language_code);
+    renderDefaultMenu(t, msg.chat.id, Content.renderNeedMe(t));
 })
 
 Client.ElMarco.on("callback_query", async (query) => {
+    const t = Client.GetIntl(query.from.language_code);
+
     const data = query.data.split(";");
     if (!data[0]) {
         Client.ElMarco.answerInlineQuery(query.id);
-        Client.ElMarco.sendMessage(query.message.chat.id, "J'ai pas bien compris ta réponse 🤨");
+        Client.ElMarco.sendMessage(
+            query.message.chat.id,
+            t.__("J'ai pas bien compris ta réponse") + " 🤨"
+        );
         return;
     }
 
@@ -601,7 +653,7 @@ Client.ElMarco.on("callback_query", async (query) => {
         Client.ElMarco.answerCallbackQuery(query.id);
         Client.ElMarco.sendMessage(
             query.message.chat.id,
-            Content.renderRequireNewsession(),
+            Content.renderRequireNewsession(t),
             {
                 parse_mode: "HTML",
             },
@@ -615,10 +667,10 @@ Client.ElMarco.on("callback_query", async (query) => {
         case Command.Actions.ActionCloseFuture:
             if (data[1] === Command.Actions.ActionCancel) {
                 Client.ElMarco.answerCallbackQuery(query.id, {
-                    text: "No problemo, on ne le clôture pas !",
+                    text: t.__("No problemo, on ne le clôture pas !"),
                 });
                 Client.ElMarco.deleteMessage(query.message.chat.id, query.message.message_id);
-                renderDefaultMenu(query.message.chat.id, Content.renderNeedMe())
+                renderDefaultMenu(t. query.message.chat.id, Content.renderNeedMe(t))
                 break;
             }
 
@@ -627,24 +679,24 @@ Client.ElMarco.on("callback_query", async (query) => {
                     strategy.closePositionManually(query.message.chat.id, position);
                     Client.ElMarco.answerCallbackQuery(query.id);
                     Client.ElMarco.deleteMessage(query.message.chat.id, query.message.message_id);
-                    Client.ElMarco.sendMessage(query.message.chat.id, Content.renderCloseFuture(data[1]));
+                    Client.ElMarco.sendMessage(query.message.chat.id, Content.renderCloseFuture(t, data[1]));
                 })
                 .catch((e) => {
                     Client.ElMarco.answerCallbackQuery(query.id, {
-                        text: Content.renderError(e),
+                        text: Content.renderError(t, e),
                     });
                 })
                 .finally(() => 
-                    renderDefaultMenu(query.message.chat.id, Content.renderNeedMe())
+                    renderDefaultMenu(t, query.message.chat.id, Content.renderNeedMe(t))
                 );
             break;
         case Command.Actions.ActionCloseAllFutures:
             if (data[1] === Command.Actions.ActionCancel) {
                 Client.ElMarco.answerCallbackQuery(query.id, {
-                    text: "No problemo, on ne les clôture pas !",
+                    text: t.__("No problemo, on ne les clôture pas !"),
                 });
                 Client.ElMarco.deleteMessage(query.message.chat.id, query.message.message_id);
-                renderDefaultMenu(query.message.chat.id, Content.renderNeedMe())
+                renderDefaultMenu(t, query.message.chat.id, Content.renderNeedMe(t))
                 break;
             }
 
@@ -652,25 +704,25 @@ Client.ElMarco.on("callback_query", async (query) => {
                 .then((_) => {
                     Client.ElMarco.answerCallbackQuery(query.id);
                     Client.ElMarco.deleteMessage(query.message.chat.id, query.message.message_id);
-                    Client.ElMarco.sendMessage(query.message.chat.id, Content.renderCloseAllFuture());
+                    Client.ElMarco.sendMessage(query.message.chat.id, Content.renderCloseAllFuture(t));
                 })
                 .catch((e) => {
                     Client.ElMarco.answerCallbackQuery(query.id, {
-                        text: Content.renderError(e),
+                        text: Content.renderError(t, e),
                     });
                 })
                 .finally(() => 
-                    renderDefaultMenu(query.message.chat.id, Content.renderNeedMe())
+                    renderDefaultMenu(t, query.message.chat.id, Content.renderNeedMe(t))
                 );
 
             break;
         case Command.Actions.ActionCreateFuture:
             if (data[1] === Command.Actions.ActionCancel) {
                 Client.ElMarco.answerCallbackQuery(query.id, {
-                    text: "No problemo, on va pas créer le Future",
+                    text: t.__("No problemo, on va pas créer le Future"),
                 });
                 Client.ElMarco.deleteMessage(query.message.chat.id, query.message.message_id);
-                renderDefaultMenu(query.message.chat.id, Content.renderNeedMe())
+                renderDefaultMenu(t ,query.message.chat.id, Content.renderNeedMe(t))
                 break;
             }
 
@@ -683,24 +735,24 @@ Client.ElMarco.on("callback_query", async (query) => {
                     Client.ElMarco.deleteMessage(query.message.chat.id, query.message.message_id);
                     Client.ElMarco.sendMessage(
                         query.message.chat.id,
-                        Content.renderFutureCreated(res.position),
+                        Content.renderFutureCreated(t, res.position),
                         {
                             parse_mode: "HTML",
                         }
                     );
                 })
-                .catch((e) => displayChatError(`Error futuresNewPosition ${e}`, query.message.chat.id))
+                .catch((e) => displayChatError(t, `Error futuresNewPosition ${e}`, query.message.chat.id))
                 .finally(() =>
-                    renderDefaultMenu(query.message.chat.id, Content.renderNeedMe())
+                    renderDefaultMenu(t, query.message.chat.id, Content.renderNeedMe(t))
                 );
             break;
         case Command.Actions.ActionStartStrategy:
             if (data[1] === Command.Actions.ActionCancel) {
                 Client.ElMarco.answerCallbackQuery(query.id, {
-                    text: "Pas de jobs pour moi, ye compris...",
+                    text: t.__("Pas de jobs pour moi, ye compris..."),
                 });
                 Client.ElMarco.deleteMessage(query.message.chat.id, query.message.message_id);
-                renderDefaultMenu(query.message.chat.id, Content.renderNeedMe())
+                renderDefaultMenu(t, query.message.chat.id, Content.renderNeedMe(t))
                 break;
             }
 
@@ -719,27 +771,33 @@ Client.ElMarco.on("callback_query", async (query) => {
                     Client.ElMarco.deleteMessage(query.message.chat.id, query.message.message_id);
                     Client.ElMarco.sendMessage(
                         query.message.chat.id,
-                        Content.renderStrategyStarted(params.strat),
+                        Content.renderStrategyStarted(t, params.strat),
                         {
                             parse_mode: "HTML",
                         }
                     );
                 })
-                .catch((e) => displayChatError(`Error create strategy ${e}`, query.message.chat.id))
+                .catch((e) => displayChatError(t, t.__(`J'ai pas réussi à initier la stratégie %s`, e), query.message.chat.id))
                 .finally(() =>
-                    renderDefaultMenu(query.message.chat.id, Content.renderNeedMe())
+                    renderDefaultMenu(t, query.message.chat.id, Content.renderNeedMe(t))
                 );
                 break;
         default:
             LogLevel.warn(`unknown_cb_action: [${data[0]}]`);
             Client.ElMarco.answerCallbackQuery(query.id, {
-                text: "Ye connais pas ça !",
+                text: t.__("Ye connais pas ça !"),
             });
-            renderDefaultMenu(query.message.chat.id, Content.renderNeedMe())
+            renderDefaultMenu(t, query.message.chat.id, Content.renderNeedMe(t))
     }
 });
 
-const renderDefaultMenu = async (chatID, message) => {
+/**
+ * 
+ * @param {Object} t for translation
+ * @param {String} chatID 
+ * @param {String} message 
+ */
+const renderDefaultMenu = async (t, chatID, message) => {
     let balance, lastOffer;
     try {
         const apiCreds = await Auth.fetchAPICreds(chatID);
@@ -757,17 +815,17 @@ const renderDefaultMenu = async (chatID, message) => {
 
     const topMenu = [];
     if (typeof lastOffer !== "undefined") {
-        topMenu.push(`${Content.Emoji.PriceEmoji} Dernier prix à ${lastOffer}USD`);
+        topMenu.push(`${Content.Emoji.PriceEmoji} ${t.__(`Dernier prix à`)} ${lastOffer}USD`);
     }
 
     const balanceBtn = typeof balance !== "undefined"
-        ? `${Content.Emoji.BalanceEmoji} Ta balance est de ${balance} sat` 
-        : `${Content.Emoji.StartEmoji} Créer une session pour commencer`;
+        ? `${Content.Emoji.BalanceEmoji} ${t.__(`Ta balance est de`)} ${t.__n(`%s sat`, balance)}` 
+        : `${Content.Emoji.StartEmoji} ${t.__(`Créer une session pour commencer`)}`;
 
     topMenu.push(balanceBtn);
 
     menu.push(topMenu);
-    menu.push([`${Content.Emoji.FutureEmoji} Créer un Future`, `${Content.Emoji.OptionEmoji} Créer une Option`, `${Content.Emoji.HelpEmoji} Aide`]);
+    menu.push([`${Content.Emoji.FutureEmoji} ${t.__(`Créer un Future`)}`, `${Content.Emoji.OptionEmoji} ${t.__(`Créer une Option`)}`, `${Content.Emoji.HelpEmoji} ${t.__(`Aide`)}`]);
 
     try {
         const runningStrat = await strategy.getRunningStrategy(chatID);
@@ -775,11 +833,11 @@ const renderDefaultMenu = async (chatID, message) => {
         const stats = await strategy.computeStats(chatID);
 
         menu.push([
-            `${Content.Emoji.RefreshEmoji} Je travaille la stratégie ${runningStrat.strategy} | PL ${stats.total_pl} sat`
+            `${Content.Emoji.RefreshEmoji} ${t.__(`Je travaille la stratégie`)} ${runningStrat.strategy} | PL ${t.__n(`%s sat`, stats.total_pl)}`
         ]);
     } catch(_) {
         menu.push([
-            `${Content.Emoji.BotEmoji} Lancer une Stratégie`
+            `${Content.Emoji.BotEmoji} ${t.__(`Lancer une Stratégie`)}`
         ]);
     }
 
