@@ -8,6 +8,10 @@ Add [El Marco](https://t.me/ElmarcoBot) in Telegram.
 
 # Changelogs
 
+## v0.3.0
+
+Internationalization on! See [locales](https://github.com/Chaine-de-Blocs/el-marco-bot/tree/master/locales)
+
 ## v0.2.0
 
 You can now manually close positions created from your running strategy. Closing those positions will be used to calculate strategy perfomance.
