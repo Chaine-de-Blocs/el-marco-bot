@@ -42,7 +42,7 @@ ${t.__(`Partage moi à tes camaradas`)} <code>https://t.me/ElmarcoBot</code>
 
 ${t.__(`Tu trouveras une liste des modifications ici`)} <a href="https://github.com/Chaine-de-Blocs/el-marco-bot#changelogs">https://github.com/Chaine-de-Blocs/el-marco-bot#changelogs</a>
 ${innerMessage}
-⚠️ ${t.__(`J'ai pas une énorme mémoire, quand je suis mis à jour j'oublie toutes les stratégies. <b>Si tu avais une stratégie en cours relance là</b></b>`)}
+⚠️ ${t.__(`J'ai pas une énorme mémoire, quand je suis mis à jour j'oublie toutes les stratégies. <b>Si tu avais une stratégie en cours relance là</b>`)}
     `;
 }
 
@@ -292,9 +292,9 @@ ${renderCreateFutureHelp(t)}
 
 🌀 <b>${t.__(`Trading automatique (stratégies)`)}</b> 🌀
 
-<code>/strategy</code> ${t.__(`Pour démarrer une stratégie automatique. Lance la commande et je te guide.`)}
-<code>/stopstrategy</code> ${t.__(`Pour stopper la stratégie en cours, je te ferais un résumé des résultats.`)}
-<code>/strategystats</code> ${t.__(`Pour afficher les stats de la stratégie en cours.`)}
+<code>/strategy</code> ${t.__(`Pour démarrer une stratégie automatique. Lance la commande et je te guide`)}
+<code>/stopstrategy</code> ${t.__(`Pour stopper la stratégie en cours, je te ferais un résumé des résultats`)}
+<code>/strategystats</code> ${t.__(`Pour afficher les stats de la stratégie en cours`)}
     `;
 }
 
@@ -376,7 +376,7 @@ ${QtyEmoji} ${t.__(`Quantité`)} <b>${future.quantity} USD</b>
 ${LeverageEmoji} ${t.__(`Le levier est de`)} <u>x${future.leverage}</u>
 
 ${PriceEmoji} ${t.__(`Prix d'entré`)} <b>${future.price} USD</b>
-${MarginEmoji} ${t.__(`Margin de`)} <b>${t.__n(`%s sat`, margin)}</b>
+${MarginEmoji} ${t.__(`Margin de`)} <b>${t.__n(`%s sat`, future.margin)}</b>
 ${LiquidationEmoji} ${t.__(`Liquidation à`)} <b>${future.liquidation} USD</b>
 
 ${renderSL(t, future.stoploss)}
@@ -558,14 +558,14 @@ ${t.__(`Bon t'es sûr de toi ? On est sur un P/L cumulatif de`)} ${agregatedPL <
  * @returns {String}
  */
 const renderCreateFutureHelp = (t) => {
-    return `<code>/createfuture</code> ${t.__(`Créer un Future`)} <code>(l ou s) [q=&lt;USD quantity&gt;] x=&lt;levier&gt; [p=&lt;prix d'entrée&gt;] [m=&lt;marge&gt;] [sl=&lt;StopLoss&gt;] [tp=&lt;TakeProfit&gt;]</code>
+    return `<code>/createfuture</code> ${t.__(`Créer un Future`)} <code>(l ou s) [q=&lt;USD quantity&gt;] x=&lt;${t.__(`levier`)}&gt; [p=&lt;${t.__(`prix d'entrée`)}&gt;] [m=&lt;${t.__(`marge`)}&gt;] [sl=&lt;StopLoss&gt;] [tp=&lt;TakeProfit&gt;]</code>
 <i>${t.__(`Mets %s pour faire un Long (Buy) et %s pour faire un Short (Sell)`, `<code>l</code>`, `<code>s</code>`)}</i>
 
 <code>q</code> ${t.__(`c'est pour la quantité`)}
 <code>m</code> ${t.__(`c'est pour la margin`)}
 <b>${t.__(`Tu dois au moins préciser %s ou %s pour créer le Future`, `<code>q</code>`, `<code>m</code>`)}</b>
 
-<code>p</code> ${t.__(`c'est pour préciser le limit price, si tu ne le mets pas alors je vais créer un order au prix de marché.`)}`; 
+<code>p</code> ${t.__(`c'est pour préciser le limit price, si tu ne le mets pas alors je vais créer un order au prix de marché`)}`; 
 }
 
 /**
@@ -609,7 +609,7 @@ const renderCloseFutureHelp = (t) => {
  * @returns {String}
  */
 const renderCloseAllFutureHelp = (t) => {
-    return `<code>/closeallfutures</code> ${t.__(`Pour clôturer tous les Futures ouverts.`)}`;
+    return `<code>/closeallfutures</code> ${t.__(`Pour clôturer tous les Futures ouverts`)}`;
 }
 
 /**
@@ -700,7 +700,7 @@ const renderSide = (side) => {
  * @returns {String}
  */
 const renderError = (t, e) => {
-    return t.__(`Oulah y'a une erreur`) + `> ${e}`;
+    return t.__(`Oulah y'a une erreur`) + ` : ${e}`;
 }
 
 /**

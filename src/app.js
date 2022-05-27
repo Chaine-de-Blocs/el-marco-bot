@@ -23,9 +23,9 @@ const displayChatError = (t, e, chatId) => {
 
 const init = async () => {
     const users = await DB.ListUsers();
-    const t = Client.GetIntl(""); // TODO get locale
     let user;
     while((user = await users.next())) {
+        const t = Client.GetIntl(user.lang || "");
         Client.ElMarco.sendMessage(
             user._id,
             Content.renderBotRestartMessage(t, process.env.npm_package_version, process.env.CUSTOM_RESTART_MESSAGE),
@@ -76,7 +76,7 @@ Client.ElMarco.onText(new RegExp(`^(\/start)( )*$|^${Content.Emoji.StartEmoji}.*
                 .GetLNMarketClient(clientId, clientSecret, passphrase)
                 .getUser()
                 .then(async _ => {
-                    await DB.SaveAPICreds(msg.chat.id, clientId, clientSecret, passphrase);
+                    await DB.SaveAPICreds(msg.chat.id, clientId, clientSecret, passphrase, msg.from.language_code);
 
                     // TODO allow user to define session expiration
                     await KV.Store(passphrase, msg.chat.id);
@@ -181,7 +181,7 @@ Client.ElMarco.onText(new RegExp(`^(\/strategy)( )*$|^${Content.Emoji.BotEmoji}.
                 if (!Strategies.includes(strat)) {
                     displayChatError(
                         t,
-                        new Error(t.__(`La stratégie %s n'existe pas`, strat)),
+                        new Error(t.__(`La stratégie %s n'existe pas`, strat || "")),
                         msg.chat.id,
                     );
                     return;
@@ -284,26 +284,28 @@ Client.ElMarco.onText(/\/deposit.*/, authMiddleware(function (msg) {
                     return
                 }
 
-                const res = 
-                    await Client.GetLNMarketClient(
-                        apiCreds.api_client,
-                        apiCreds.api_secret,
-                        apiCreds.passphrase,
-                    ).deposit({ amount: value });
-                
-                // TODO replace buffer usage for sendPhoto which require
-                // stream
-                QRCode.toBuffer(res.paymentRequest)
-                    .then(qrcodeBuffer /* Buffer */ => {
-                        Client.ElMarco.sendPhoto(
-                            msg.chat.id,
-                            qrcodeBuffer,
-                            {
-                                caption: res.paymentRequest
-                            }
-                        )
-                    })
-                    .catch(e => displayChatError(msg.chat.id, e));
+                try {
+                    const res = 
+                        await Client.GetLNMarketClient(
+                            apiCreds.api_client,
+                            apiCreds.api_secret,
+                            apiCreds.passphrase,
+                        ).deposit({ amount: value });
+                    
+                    const qrcodeBuffer = await QRCode.toBuffer(res.paymentRequest);
+
+                    // TODO replace buffer usage for sendPhoto which require
+                    // stream
+                    Client.ElMarco.sendPhoto(
+                        msg.chat.id,
+                        qrcodeBuffer,
+                        {
+                            caption: res.paymentRequest
+                        }
+                    );
+                } catch (e) {
+                    displayChatError(t, e, msg.chat.id);
+                }
             }
         );
     }).catch(e => displayChatError(t, e, msg.chat.id));
@@ -603,10 +605,10 @@ Client.ElMarco.onText(/\/closeallfutures/, authMiddleware(function(msg) {
                     reply_markup: {
                         remove_keyboard: true,
                         inline_keyboard: [[{
-                            text: "On les clôture tous",
+                            text: t.__(`On les clôture tous`),
                             callback_data: `${Command.Actions.ActionCloseAllFutures}`,
                         }, {
-                            text: "Nope, on annule",
+                            text: t.__(`Nope, on annule`),
                             callback_data: `${Command.Actions.ActionCloseAllFutures};${Command.Actions.ActionCancel}`,
                         }]],
                         one_time_keyboard: true,

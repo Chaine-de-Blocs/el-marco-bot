@@ -34,7 +34,7 @@ const Init = () => {
  * 
  * @returns {Promise<any>}
  */
-const SaveAPICreds = async (chatID, clientId, clientSecret, passphrase) => {
+const SaveAPICreds = async (chatID, clientId, clientSecret, passphrase, lang) => {
     const value = Utils.Encrypt(`${clientId}:${clientSecret}`, passphrase);
 
     return getDB()
@@ -45,6 +45,7 @@ const SaveAPICreds = async (chatID, clientId, clientSecret, passphrase) => {
             $set: {
                 _id: chatID,
                 encrypted_creds: value,
+                lang,
             },
         }, {
             upsert: true,

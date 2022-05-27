@@ -54,52 +54,105 @@ const Params = {
     },
 };
 
+const fr = Client.GetIntl("fr");
 Client.ElMarco.setMyCommands([{
     command: "start",
-    description: "Démarrer El Marco Bot pour faire fortune (en sat bien évidemment)",
+    description: fr.__("Démarrer El Marco Bot pour faire fortune (en sat bien évidemment)"),
 }, {
     command: "closeallfutures",
-    description: "Fermer tous les Futures en cours",
+    description: fr.__("Fermer tous les Futures en cours"),
 }, {
     command: "help",
-    description: "Afficher l'aide pour bosser avec El Marrrco",
+    description: fr.__("Afficher l'aide pour bosser avec El Marrrco"),
 }, {
     command: "home",
-    description: "Retour à la page d'accueil"
+    description: fr.__("Retour à la page d'accueil"),
 }, {
     command: "balance",
-    description: "Mettre à jour sa balance LNMarket",
+    description: fr.__("Mettre à jour sa balance LNMarket"),
 }, {
     command: "options",
-    description: "Consulter ses Options ouvertes",
+    description: fr.__("Consulter ses Options ouvertes"),
 }, {
     command: "futures",
-    description: "Consulter ses Futures ouverts",
+    description: fr.__("Consulter ses Futures ouverts"),
 }, {
     command: "createfuture",
-    description: "Créer un Future",
+    description: fr.__("Créer un Future"),
 }, {
     command: Actions.ActionCloseFuture,
-    description: "Fermer un Future en cours",
+    description: fr.__("Fermer un Future en cours"),
 }, {
     command: "deposit",
-    description: "Déposer des fonds dans ton portefeuille LNMarket",
+    description: fr.__("Déposer des fonds dans ton portefeuille LNMarket"),
 }, {
     command: "strategy",
-    description: "Activer mes trades automatiques (je ferais de mon mieux mais je peux rien t'assurer)",
+    description: fr.__("Activer mes trades automatiques (je ferais de mon mieux mais je peux rien t'assurer)"),
 }, {
     command: "stopstrategy",
-    description: "Stopper les trades automatiques en cours (attention ça ne les clôture pas)",
+    description: fr.__("Stopper les trades automatiques en cours (attention ça ne les clôture pas)"),
 }, {
     command: "strategystats",
-    description: "Afficher les stats de la stratégie en cours",
+    description: fr.__("Afficher les stats de la stratégie en cours"),
 }, {
     command: "tips",
-    description: "Fais plaisir à mon créateur en lui envoyant des sats",
+    description: fr.__("Fais plaisir à mon créateur en lui envoyant des sats"),
 }, {
     command: "removesession",
-    description: "Supprime ta session en cours, j'oublie tous tes accès API",
-}]);
+    description: fr.__("Supprime ta session en cours, j'oublie tous tes accès API"),
+}], {
+    language_code: "fr",
+});
+
+const en = Client.GetIntl("en");
+Client.ElMarco.setMyCommands([{
+    command: "start",
+    description: en.__("Démarrer El Marco Bot pour faire fortune (en sat bien évidemment)"),
+}, {
+    command: "closeallfutures",
+    description: en.__("Fermer tous les Futures en cours"),
+}, {
+    command: "help",
+    description: en.__("Afficher l'aide pour bosser avec El Marrrco"),
+}, {
+    command: "home",
+    description: en.__("Retour à la page d'accueil"),
+}, {
+    command: "balance",
+    description: en.__("Mettre à jour sa balance LNMarket"),
+}, {
+    command: "options",
+    description: en.__("Consulter ses Options ouvertes"),
+}, {
+    command: "futures",
+    description: en.__("Consulter ses Futures ouverts"),
+}, {
+    command: "createfuture",
+    description: en.__("Créer un Future"),
+}, {
+    command: Actions.ActionCloseFuture,
+    description: en.__("Fermer un Future en cours"),
+}, {
+    command: "deposit",
+    description: en.__("Déposer des fonds dans ton portefeuille LNMarket"),
+}, {
+    command: "strategy",
+    description: en.__("Activer mes trades automatiques (je ferais de mon mieux mais je peux rien t'assurer)"),
+}, {
+    command: "stopstrategy",
+    description: en.__("Stopper les trades automatiques en cours (attention ça ne les clôture pas)"),
+}, {
+    command: "strategystats",
+    description: en.__("Afficher les stats de la stratégie en cours"),
+}, {
+    command: "tips",
+    description: en.__("Fais plaisir à mon créateur en lui envoyant des sats"),
+}, {
+    command: "removesession",
+    description: en.__("Supprime ta session en cours, j'oublie tous tes accès API"),
+}], {
+    language_code: "en",
+});
 
 /**
  * 

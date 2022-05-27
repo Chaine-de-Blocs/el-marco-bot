@@ -49,7 +49,7 @@ const renderCloseFuture = (t, future, strat) => {
     return `
 ${renderStartHeader(t, strat)} ${t.__(`J'ai clôturé un Future pour toi`)}
 
-${t.__(`Le Future %s a été clôturé`, `<code>${future.pid}</code>`)} ${Content.renderPL(future.pl)}
+${t.__(`Le Future %s a été clôturé`, `<code>${future.pid}</code>`)} ${Content.renderPL(t, future.pl)}
     `;
 }
 

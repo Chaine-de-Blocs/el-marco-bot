@@ -73,14 +73,13 @@ const Mongo = new MongoClient(process.env.DB_HOST);
 const GetIntl = (locale) => {
     let t = {};
     i18n.configure({
-        locales: ["fr", "en"], // TODO es, pt
+        locales: ["fr", "en", "es", "pt"],
         defaultLocale: "fr",
         directory: path.resolve("./locales"),
         register: t,
     });
 
-    // t.setLocale(locale);
-    t.setLocale("en");// TEMP
+    t.setLocale(locale);
 
     return t;
 }
